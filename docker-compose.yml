@@ -1,0 +1,43 @@
+# VOC weekly digest — n8n + WireMock
+# cp .env.example .env && docker compose up -d
+
+services:
+  wiremock:
+    image: wiremock/wiremock:3.9.1
+    ports:
+      - "${WIREMOCK_PORT:-8080}:8080"
+    volumes:
+      - ./wiremock:/home/wiremock
+    command:
+      - --global-response-templating
+      - --verbose
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/__admin/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  n8n:
+    image: n8nio/n8n:${N8N_VERSION:-latest}
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    environment:
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://${N8N_HOST:-localhost}:${N8N_PORT:-5678}/
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-America/New_York}
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_PERSONALIZATION_ENABLED=false
+      - VOC_MOCK_BASE_URL=http://wiremock:8080
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n/workflows:/import:ro
+      - ./n8n/lib:/lib:ro
+      - ./config:/config:ro
+    depends_on:
+      wiremock:
+        condition: service_healthy
+
+volumes:
+  n8n_data:

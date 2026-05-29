@@ -1,0 +1,46 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/mock/amazon/feedback/topics"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "source": "amazon_customer_feedback",
+      "asin": "{{request.query.asin}}",
+      "period": "LAST_7_DAYS",
+      "overallRating": 4.1,
+      "reviewCount": 1284,
+      "topics": [
+        {
+          "sentiment": "negative",
+          "label": "packaging_damaged",
+          "mentions": 47,
+          "ratingImpact": -0.3,
+          "sampleSnippet": "Box arrived crushed and product leaked."
+        },
+        {
+          "sentiment": "negative",
+          "label": "scent_too_strong",
+          "mentions": 31,
+          "ratingImpact": -0.15,
+          "sampleSnippet": "Fragrance is overpowering compared to last batch."
+        },
+        {
+          "sentiment": "positive",
+          "label": "easy_to_use",
+          "mentions": 89,
+          "ratingImpact": 0.2,
+          "sampleSnippet": "Simple instructions, works as advertised."
+        }
+      ],
+      "trend": {
+        "packaging_damaged": "up",
+        "scent_too_strong": "stable",
+        "easy_to_use": "stable"
+      }
+    },
+    "transformers": ["response-template"]
+  }
+}

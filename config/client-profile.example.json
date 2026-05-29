@@ -1,0 +1,41 @@
+{
+  "clientName": "Example CPG Co",
+  "timezone": "America/New_York",
+  "catalog": [
+    {
+      "sku": "SKU-1001",
+      "name": "Hydrating Serum 30ml",
+      "asin": "B000000001",
+      "walmartItemId": "123456789",
+      "retailers": ["amazon", "walmart"]
+    },
+    {
+      "sku": "SKU-2002",
+      "name": "Daily Moisturizer 50ml",
+      "asin": "B000000002",
+      "walmartItemId": "987654321",
+      "retailers": ["amazon", "walmart"]
+    }
+  ],
+  "themeTaxonomy": [
+    "packaging_damaged",
+    "leak_or_spill",
+    "pump_failure",
+    "scent_too_strong",
+    "not_as_described",
+    "easy_to_use"
+  ],
+  "returnReasonMap": {
+    "DEFECTIVE": ["pump_failure", "not_as_described"],
+    "DAMAGED": ["packaging_damaged", "leak_or_spill"],
+    "NOT_AS_DESCRIBED": ["not_as_described", "scent_too_strong"]
+  },
+  "thresholds": {
+    "minCorroborationScore": 2,
+    "minMentionsForActNow": 5
+  },
+  "digest": {
+    "exceptionOnly": true,
+    "scheduleCron": "0 7 * * 1"
+  }
+}
