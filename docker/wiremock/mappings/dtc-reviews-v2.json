@@ -1,0 +1,51 @@
+{
+  "scenarioName": "DTC Source Variation",
+  "requiredScenarioState": "variant-2",
+  "newScenarioState": "Started",
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/mock/dtc/reviews"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "source": "dtc_review_app",
+      "sku": "{{request.query.sku}}",
+      "since": "{{request.query.since}}",
+      "reviews": [
+        {
+          "id": "dtc-r-1101",
+          "sku": "{{request.query.sku}}",
+          "rating": 1,
+          "title": "Arrived leaking",
+          "body": "Product leaked around the collar before first use.",
+          "createdAt": "2026-05-26T15:12:00Z",
+          "verifiedPurchase": true,
+          "themeHint": "leak_or_spill"
+        },
+        {
+          "id": "dtc-r-1102",
+          "sku": "{{request.query.sku}}",
+          "rating": 2,
+          "title": "Packaging dented",
+          "body": "Cap cracked and box was crushed on delivery.",
+          "createdAt": "2026-05-25T07:10:00Z",
+          "verifiedPurchase": true,
+          "themeHint": "packaging_damaged"
+        },
+        {
+          "id": "dtc-r-1103",
+          "sku": "{{request.query.sku}}",
+          "rating": 3,
+          "title": "Strong scent",
+          "body": "Texture is fine but fragrance is too intense.",
+          "createdAt": "2026-05-23T16:44:00Z",
+          "verifiedPurchase": true,
+          "themeHint": "scent_too_strong"
+        }
+      ]
+    },
+    "transformers": ["response-template"]
+  }
+}

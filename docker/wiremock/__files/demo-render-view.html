@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VOC Weekly Digest Viewer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+      :root {
+        --bg: #f8fafc;
+        --panel: #ffffff;
+        --panel-2: #f8fafc;
+        --line: #e5e7eb;
+        --text: #0f172a;
+        --muted: #64748b;
+        --good: #059669;
+        --watch: #b45309;
+        --exclude: #dc2626;
+        --brand: #0f766e;
+        --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          16px/1.55 "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+      }
+      .wrap {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 28px;
+      }
+      .hero {
+        background: linear-gradient(120deg, #ffffff 0%, #f0fdfa 100%);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 22px 24px;
+        margin-bottom: 14px;
+        box-shadow: var(--shadow);
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        letter-spacing: 0.2px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .title-icon {
+        margin-right: 8px;
+        color: var(--brand);
+      }
+      .badge {
+        display: inline-block;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #334155;
+        border-radius: 999px;
+        padding: 5px 12px;
+        margin-right: 8px;
+        font-size: 13px;
+        letter-spacing: 0.2px;
+      }
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px 15px;
+        box-shadow: var(--shadow);
+      }
+      .kpi-value {
+        font-size: 38px;
+        font-weight: 720;
+        margin: 4px 0 0;
+      }
+      .kpi-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .sec-title {
+        margin: 0 0 10px;
+        font-size: 20px;
+        letter-spacing: 0.2px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .mini-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .chart-box {
+        height: 280px;
+        max-width: 100%;
+        overflow: hidden;
+        position: relative;
+      }
+      .chart-box canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+      }
+      .chart-meta {
+        margin-top: 8px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .legend {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+      .legend-item {
+        font-size: 13px;
+        border: 1px solid #d1d5db;
+        border-radius: 999px;
+        padding: 3px 10px;
+        color: #334155;
+      }
+      .legend-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+        vertical-align: middle;
+      }
+      .themes-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .theme {
+        border: 1px solid var(--line);
+        background: var(--panel-2);
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 8px;
+      }
+      .pill {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 13px;
+        margin-right: 6px;
+      }
+      .act {
+        background: rgba(5, 150, 105, 0.1);
+        color: var(--good);
+        border: 1px solid rgba(5, 150, 105, 0.35);
+      }
+      .watch {
+        background: rgba(180, 83, 9, 0.1);
+        color: var(--watch);
+        border: 1px solid rgba(180, 83, 9, 0.35);
+      }
+      .exclude {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--exclude);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+      }
+      .digest-rendered {
+        margin: 0;
+        background: #f8fafc;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px;
+        color: #0f172a;
+        min-height: 180px;
+        line-height: 1.6;
+      }
+      .digest-rendered h1,
+      .digest-rendered h2,
+      .digest-rendered h3 {
+        margin: 10px 0 6px;
+        color: #0f172a;
+      }
+      .digest-rendered p {
+        margin: 0 0 8px;
+      }
+      .digest-rendered ul,
+      .digest-rendered ol {
+        margin: 6px 0 10px 20px;
+      }
+      .digest-rendered code {
+        background: #e2e8f0;
+        border-radius: 6px;
+        padding: 1px 5px;
+      }
+      .digest-rendered blockquote {
+        margin: 8px 0;
+        padding: 8px 10px;
+        border-left: 3px solid #94a3b8;
+        background: #eef2f7;
+        color: #334155;
+      }
+      .bar-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 7px;
+      }
+      .bar-name {
+        color: #0f172a;
+        font-size: 14px;
+      }
+      .bar-track {
+        width: 100%;
+        height: 10px;
+        background: #f1f5f9;
+        border: 1px solid #dbe2ea;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 3px;
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #0f766e, #14b8a6);
+      }
+      .bar-val {
+        color: #334155;
+        font-size: 13px;
+      }
+      .source-bars .bar-fill {
+        background: linear-gradient(90deg, #0284c7, #38bdf8);
+      }
+      .error {
+        border-color: #fecaca;
+        color: #991b1b;
+        background: #fef2f2;
+      }
+      @media (max-width: 1080px) {
+        .layout,
+        .themes-grid {
+          grid-template-columns: 1fr;
+        }
+        .mini-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 860px) {
+        .kpi-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (max-width: 560px) {
+        .kpi-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <section class="hero">
+        <h1><i class="bi bi-speedometer2 title-icon"></i>VOC Weekly Digest Viewer</h1>
+        <div class="muted">Persisted dashboard for the latest <code>POST /mock/demo/render</code></div>
+        <div style="margin-top:10px">
+          <span class="badge" id="posted-at">No payload yet</span>
+          <span class="badge" id="client-name">Client: —</span>
+          <span class="badge" id="model-name">Model: —</span>
+        </div>
+      </section>
+
+      <section class="kpi-grid">
+        <article class="card">
+          <div class="muted kpi-title"><i class="bi bi-lightning-charge"></i>Act now</div>
+          <div class="kpi-value" id="kpi-actionable">0</div>
+        </article>
+        <article class="card">
+          <div class="muted kpi-title"><i class="bi bi-eye"></i>Watch List</div>
+          <div class="kpi-value" id="kpi-watch">0</div>
+        </article>
+        <article class="card">
+          <div class="muted kpi-title"><i class="bi bi-slash-circle"></i>Excluded</div>
+          <div class="kpi-value" id="kpi-exclude">0</div>
+        </article>
+        <article class="card">
+          <div class="muted kpi-title"><i class="bi bi-collection"></i>Total Themes</div>
+          <div class="kpi-value" id="kpi-total">0</div>
+        </article>
+      </section>
+
+      <section class="themes-grid">
+        <article class="card">
+          <h2 class="sec-title"><i class="bi bi-lightning-charge title-icon"></i>Act now details</h2>
+          <div id="act-now"></div>
+        </article>
+        <article class="card">
+          <h2 class="sec-title"><i class="bi bi-eye title-icon"></i>Watch list details</h2>
+          <div id="watch-list"></div>
+        </article>
+      </section>
+
+      <section class="layout">
+        <article class="card">
+          <h2 class="sec-title"><i class="bi bi-pie-chart title-icon"></i>Recommendation mix</h2>
+          <div class="chart-box">
+            <canvas id="mix-chart"></canvas>
+          </div>
+          <div class="legend">
+            <span class="legend-item"><span class="legend-dot" style="background:#34d399"></span>Act now</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#fbbf24"></span>Watch</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#fb7185"></span>Exclude</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2 class="sec-title"><i class="bi bi-bar-chart-line title-icon"></i>Mentions by theme</h2>
+          <div id="mentions-bars"></div>
+        </article>
+      </section>
+
+      <section class="mini-grid" style="margin-top: 12px">
+        <article class="card">
+          <h2 class="sec-title"><i class="bi bi-diagram-3 title-icon"></i>Source coverage</h2>
+          <div id="source-bars" class="source-bars"></div>
+          <div class="chart-meta" id="source-meta"></div>
+        </article>
+        <article class="card">
+          <h2 class="sec-title"><i class="bi bi-file-earmark-text title-icon"></i>Digest markdown</h2>
+          <div id="digest-markdown" class="digest-rendered">No digest text available.</div>
+        </article>
+      </section>
+    </div>
+
+    <script>
+      const COLORS = {
+        act: '#059669',
+        watch: '#b45309',
+        exclude: '#dc2626',
+      };
+
+      async function loadLatestPayload() {
+        const res = await fetch('/__admin/requests', { cache: 'no-store' });
+        const data = await res.json();
+        const requests = (data.requests || []).filter(
+          (r) => r.request?.method === 'POST' && r.request?.url === '/mock/demo/render'
+        );
+        if (!requests.length) return null;
+        requests.sort((a, b) => new Date(b.loggedDate || 0) - new Date(a.loggedDate || 0));
+        const latest = requests[0];
+        return {
+          postedAt: latest.loggedDate,
+          body: safeParse(latest.request?.body),
+        };
+      }
+
+      function safeParse(body) {
+        try { return JSON.parse(body || '{}'); } catch { return {}; }
+      }
+
+      function recOf(t) {
+        return String(t.aiRecommendation || t.recommendation || '').toLowerCase();
+      }
+
+      function themeRow(t) {
+        const rec = recOf(t);
+        const cls = rec === 'act_now' ? 'act' : rec === 'exclude' ? 'exclude' : 'watch';
+        const label = rec ? rec.replace('_', ' ') : 'theme';
+        return `
+          <div class="theme">
+            <div>
+              <strong>${escapeHtml(t.theme || 'unknown_theme')}</strong>
+              <span class="pill ${cls}">${escapeHtml(label)}</span>
+            </div>
+            <div class="muted">
+              score ${num(t.corroborationScore)} • mentions ${num(t.mentions)} • sources ${(t.sources || []).join(', ') || 'n/a'}
+            </div>
+            ${t.aiRationale || t.rationale ? `<div style="margin-top:4px">${escapeHtml(t.aiRationale || t.rationale)}</div>` : ''}
+          </div>
+        `;
+      }
+
+      function num(v) { return Number.isFinite(Number(v)) ? Number(v) : 0; }
+      function sum(arr) { return (arr || []).reduce((a, b) => a + num(b), 0); }
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+      }
+
+      function renderMarkdown(markdownText) {
+        const md = String(markdownText || '').trim();
+        if (!md) return '<p>No digest markdown in latest payload.</p>';
+        if (window.marked && typeof window.marked.parse === 'function') {
+          return window.marked.parse(md);
+        }
+        return `<p>${escapeHtml(md).replace(/\n/g, '<br />')}</p>`;
+      }
+
+      function drawDonut(canvas, items) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.clientWidth || 320;
+        const h = canvas.clientHeight || 280;
+        canvas.width = w * devicePixelRatio;
+        canvas.height = h * devicePixelRatio;
+        ctx.scale(devicePixelRatio, devicePixelRatio);
+        ctx.clearRect(0, 0, w, h);
+
+        const total = items.reduce((a, i) => a + i.value, 0) || 1;
+        const cx = w / 2;
+        const cy = h / 2;
+        const radius = Math.min(w, h) * 0.3;
+        const thick = Math.max(18, Math.min(34, Math.round(Math.min(w, h) * 0.1)));
+        let start = -Math.PI / 2;
+
+        for (const item of items) {
+          const angle = (item.value / total) * Math.PI * 2;
+          ctx.beginPath();
+          ctx.strokeStyle = item.color;
+          ctx.lineWidth = thick;
+          ctx.lineCap = 'round';
+          ctx.arc(cx, cy, radius, start, start + angle);
+          ctx.stroke();
+          start += angle;
+        }
+
+        ctx.beginPath();
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '700 34px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(total), cx, cy);
+      }
+
+      function renderMentionsBars(container, themes) {
+        if (!themes.length) {
+          container.innerHTML = '<div class="muted">No themes available.</div>';
+          return;
+        }
+        const top = [...themes]
+          .sort((a, b) => num(b.mentions) - num(a.mentions))
+          .slice(0, 6);
+        const max = Math.max(...top.map((t) => num(t.mentions)), 1);
+        container.innerHTML = top
+          .map((t) => {
+            const width = Math.max(4, Math.round((num(t.mentions) / max) * 100));
+            return `
+              <div class="bar-row">
+                <div>
+                  <div class="bar-name">${escapeHtml(t.theme || 'unknown')}</div>
+                  <div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div>
+                </div>
+                <div class="bar-val">${num(t.mentions)}</div>
+              </div>
+            `;
+          })
+          .join('');
+      }
+
+      function renderSourceBars(container, data) {
+        if (!data.length) {
+          container.innerHTML = '<div class="muted">No source coverage data available.</div>';
+          return;
+        }
+        const max = Math.max(...data.map((d) => num(d.value)), 1);
+        container.innerHTML = data
+          .map((d) => {
+            const w = Math.max(3, Math.round((num(d.value) / max) * 100));
+            return `
+              <div class="bar-row">
+                <div>
+                  <div class="bar-name">${escapeHtml(d.label)}</div>
+                  <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
+                </div>
+                <div class="bar-val">${num(d.value)}</div>
+              </div>
+            `;
+          })
+          .join('');
+      }
+
+      async function main() {
+        const latest = await loadLatestPayload();
+        if (!latest) {
+          document.getElementById('act-now').innerHTML =
+            '<div class="theme error">No POST payload yet. Send one to <code>/mock/demo/render</code>.</div>';
+          return;
+        }
+
+        const payload = latest.body || {};
+        const profile = payload.profile || {};
+        const normalized = payload.normalized || {};
+        const actNow = normalized.actNow || [];
+        const watch = normalized.watchList || [];
+        const allThemes = normalized.themes || [];
+        const excludes = allThemes.filter((t) => recOf(t) === 'exclude');
+        const allForCharts = allThemes.length ? allThemes : [...actNow, ...watch];
+
+        document.getElementById('posted-at').textContent =
+          `Last POST: ${new Date(latest.postedAt || Date.now()).toLocaleString()}`;
+        document.getElementById('client-name').textContent = `Client: ${profile.clientName || payload.clientName || 'Unknown'}`;
+        document.getElementById('model-name').textContent = `Model: ${(payload.aiEvaluation?.model || payload.model || 'n/a')}`;
+        document.getElementById('kpi-actionable').textContent = String(actNow.length);
+        document.getElementById('kpi-watch').textContent = String(watch.length);
+        document.getElementById('kpi-exclude').textContent = String(excludes.length);
+        document.getElementById('kpi-total').textContent = String(allForCharts.length || actNow.length + watch.length);
+
+        document.getElementById('act-now').innerHTML = actNow.length
+          ? actNow.map(themeRow).join('')
+          : '<div class="muted">No act-now themes in latest payload.</div>';
+        document.getElementById('watch-list').innerHTML = watch.length
+          ? watch.map(themeRow).join('')
+          : '<div class="muted">No watch-list themes in latest payload.</div>';
+        document.getElementById('digest-markdown').innerHTML = renderMarkdown(
+          payload.digestMarkdown || payload.digest || ''
+        );
+
+        const mixCanvas = document.getElementById('mix-chart');
+        drawDonut(mixCanvas, [
+          { label: 'Act now', value: actNow.length, color: COLORS.act },
+          { label: 'Watch', value: watch.length, color: COLORS.watch },
+          { label: 'Exclude', value: excludes.length, color: COLORS.exclude },
+        ]);
+
+        renderMentionsBars(document.getElementById('mentions-bars'), allForCharts);
+
+        const sourceCounts = {};
+        for (const t of allForCharts) {
+          for (const s of t.sources || []) sourceCounts[s] = (sourceCounts[s] || 0) + 1;
+        }
+        const sourceData = Object.entries(sourceCounts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 8)
+          .map(([label, value]) => ({ label, value }));
+        renderSourceBars(document.getElementById('source-bars'), sourceData);
+        const sourceTotal = sum(sourceData.map((d) => d.value));
+        document.getElementById('source-meta').textContent =
+          sourceData.length
+            ? `${sourceData.length} sources across ${sourceTotal} theme-source links`
+            : 'No source coverage data available.';
+      }
+
+      main().catch((err) => {
+        document.getElementById('act-now').innerHTML =
+          `<div class="theme error">Viewer error: ${escapeHtml(err.message || String(err))}</div>`;
+      });
+    </script>
+  </body>
+</html>

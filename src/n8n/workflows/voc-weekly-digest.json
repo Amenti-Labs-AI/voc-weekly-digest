@@ -1,0 +1,710 @@
+{
+  "id": "a1000001-0001-4000-8000-000000000001",
+  "name": "VOC Weekly Digest",
+  "active": false,
+  "versionId": "a1000001-0001-4001-8000-000000000009",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "Weekly Monday 7am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.VOC_MOCK_BASE_URL.replace(/\\/$/, '') + '/mock/amazon/feedback/topics' }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "asin",
+              "value": "B000000001"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+      "name": "HTTP Amazon Topics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.VOC_MOCK_BASE_URL.replace(/\\/$/, '') + '/mock/dtc/reviews' }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "sku",
+              "value": "SKU-1001"
+            },
+            {
+              "name": "since",
+              "value": "7d"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "a1b2c3d4-0003-4000-8000-000000000003",
+      "name": "HTTP DTC Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.VOC_MOCK_BASE_URL.replace(/\\/$/, '') + '/mock/marketplace/reviews' }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "retailer",
+              "value": "walmart"
+            },
+            {
+              "name": "itemId",
+              "value": "123456789"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "a1b2c3d4-0004-4000-8000-000000000004",
+      "name": "HTTP Marketplace Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.VOC_MOCK_BASE_URL.replace(/\\/$/, '') + '/mock/erp/returns' }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "period",
+              "value": "current"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "a1b2c3d4-0005-4000-8000-000000000005",
+      "name": "HTTP ERP Returns",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.VOC_MOCK_BASE_URL.replace(/\\/$/, '') + '/mock/config/client-profile' }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "a1b2c3d4-0012-4000-8000-000000000012",
+      "name": "HTTP Client Profile",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 5,
+        "options": {}
+      },
+      "id": "a1b2c3d4-0006-4000-8000-000000000006",
+      "name": "Merge Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        820,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\"use strict\";\nvar voc = (() => {\n  var __getOwnPropNames = Object.getOwnPropertyNames;\n  var __commonJS = (cb, mod) => function __require() {\n    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;\n  };\n\n  // src/voc/config.js\n  var require_config = __commonJS({\n    \"src/voc/config.js\"(exports, module) {\n      \"use strict\";\n      function createWiremockConfig(baseUrl) {\n        const base = baseUrl.replace(/\\/$/, \"\");\n        return {\n          profileUrl: `${base}/mock/config/client-profile`,\n          sources: [\n            {\n              id: \"amazon_customer_feedback\",\n              url: `${base}/mock/amazon/feedback/topics?asin=B000000001`\n            },\n            {\n              id: \"dtc_review_app\",\n              url: `${base}/mock/dtc/reviews?sku=SKU-1001&since=7d`\n            },\n            {\n              id: \"marketplace_reviews\",\n              url: `${base}/mock/marketplace/reviews?retailer=walmart&itemId=123456789`\n            },\n            {\n              id: \"erp_returns\",\n              url: `${base}/mock/erp/returns?period=current`\n            }\n          ]\n        };\n      }\n      module.exports = { createWiremockConfig };\n    }\n  });\n\n  // src/voc/profile/profile-loader.js\n  var require_profile_loader = __commonJS({\n    \"src/voc/profile/profile-loader.js\"(exports, module) {\n      \"use strict\";\n      async function loadProfile(http, profileUrl) {\n        const profile = await http({ method: \"GET\", url: profileUrl, json: true });\n        if (!profile?.clientName || !profile?.thresholds) {\n          throw new Error(\"Invalid client profile payload\");\n        }\n        return profile;\n      }\n      module.exports = { loadProfile };\n    }\n  });\n\n  // src/voc/sources/source-extractor.js\n  var require_source_extractor = __commonJS({\n    \"src/voc/sources/source-extractor.js\"(exports, module) {\n      \"use strict\";\n      function createExtractor(sourceId, extract) {\n        return {\n          sourceId,\n          extract(payload, profile) {\n            return extract(payload, profile);\n          }\n        };\n      }\n      module.exports = { createExtractor };\n    }\n  });\n\n  // src/voc/sources/extractors/amazon.js\n  var require_amazon = __commonJS({\n    \"src/voc/sources/extractors/amazon.js\"(exports, module) {\n      \"use strict\";\n      var { createExtractor } = require_source_extractor();\n      var amazonExtractor = createExtractor(\"amazon_customer_feedback\", (payload) => {\n        const events = [];\n        for (const topic of payload.topics || []) {\n          events.push({\n            theme: topic.label,\n            source: \"amazon_feedback\",\n            sku: null,\n            mentions: topic.mentions || 1,\n            snippet: topic.sampleSnippet,\n            erpWeight: 0\n          });\n        }\n        return events;\n      });\n      module.exports = { amazonExtractor };\n    }\n  });\n\n  // src/voc/sources/extractors/dtc.js\n  var require_dtc = __commonJS({\n    \"src/voc/sources/extractors/dtc.js\"(exports, module) {\n      \"use strict\";\n      var { createExtractor } = require_source_extractor();\n      var dtcExtractor = createExtractor(\"dtc_review_app\", (payload) => {\n        const events = [];\n        for (const r of payload.reviews || []) {\n          const theme = r.themeHint || (r.rating <= 2 ? \"not_as_described\" : \"easy_to_use\");\n          events.push({\n            theme,\n            source: \"dtc\",\n            sku: r.sku,\n            mentions: 1,\n            snippet: r.body || r.title,\n            erpWeight: 0\n          });\n        }\n        return events;\n      });\n      module.exports = { dtcExtractor };\n    }\n  });\n\n  // src/voc/sources/extractors/marketplace.js\n  var require_marketplace = __commonJS({\n    \"src/voc/sources/extractors/marketplace.js\"(exports, module) {\n      \"use strict\";\n      var { createExtractor } = require_source_extractor();\n      var marketplaceExtractor = createExtractor(\"marketplace_reviews\", (payload) => {\n        const events = [];\n        for (const r of payload.reviews || []) {\n          const theme = r.themeHint || (r.rating <= 2 ? \"packaging_damaged\" : \"easy_to_use\");\n          events.push({\n            theme,\n            source: \"marketplace\",\n            sku: null,\n            mentions: 1,\n            snippet: r.text || r.title,\n            erpWeight: 0\n          });\n        }\n        return events;\n      });\n      module.exports = { marketplaceExtractor };\n    }\n  });\n\n  // src/voc/sources/extractors/erp.js\n  var require_erp = __commonJS({\n    \"src/voc/sources/extractors/erp.js\"(exports, module) {\n      \"use strict\";\n      var { createExtractor } = require_source_extractor();\n      var erpExtractor = createExtractor(\"erp_returns\", (payload, profile) => {\n        const returnReasonMap = profile.returnReasonMap || {};\n        const events = [];\n        for (const row of payload.summary || []) {\n          for (const reason of row.topReasons || []) {\n            const themes = returnReasonMap[reason.code] || [\"not_as_described\"];\n            for (const theme of themes) {\n              events.push({\n                theme,\n                source: \"erp_returns\",\n                sku: row.sku,\n                mentions: reason.count,\n                snippet: reason.label,\n                erpWeight: 2\n              });\n            }\n          }\n        }\n        return events;\n      });\n      module.exports = { erpExtractor };\n    }\n  });\n\n  // src/voc/sources/source-registry.js\n  var require_source_registry = __commonJS({\n    \"src/voc/sources/source-registry.js\"(exports, module) {\n      \"use strict\";\n      var { amazonExtractor } = require_amazon();\n      var { dtcExtractor } = require_dtc();\n      var { marketplaceExtractor } = require_marketplace();\n      var { erpExtractor } = require_erp();\n      var registry = /* @__PURE__ */ new Map([\n        [amazonExtractor.sourceId, amazonExtractor],\n        [dtcExtractor.sourceId, dtcExtractor],\n        [marketplaceExtractor.sourceId, marketplaceExtractor],\n        [erpExtractor.sourceId, erpExtractor]\n      ]);\n      function getExtractor(sourceId) {\n        const extractor = registry.get(sourceId);\n        if (!extractor) {\n          throw new Error(`No extractor registered for source: ${sourceId}`);\n        }\n        return extractor;\n      }\n      module.exports = { getExtractor, registry };\n    }\n  });\n\n  // src/voc/ai/feed-themes-to-events.js\n  var require_feed_themes_to_events = __commonJS({\n    \"src/voc/ai/feed-themes-to-events.js\"(exports, module) {\n      \"use strict\";\n      var SOURCE_EVENT_LABELS = {\n        amazon_customer_feedback: \"amazon_feedback\",\n        dtc_review_app: \"dtc\",\n        marketplace_reviews: \"marketplace\",\n        erp_returns: \"erp_returns\"\n      };\n      function feedAiThemesToEvents(themes, sourceId) {\n        const source = SOURCE_EVENT_LABELS[sourceId] || sourceId;\n        const erpWeight = sourceId === \"erp_returns\" ? 2 : 0;\n        return themes.map((t) => ({\n          theme: t.theme,\n          source,\n          sku: t.sku || null,\n          mentions: t.mentions || 1,\n          snippet: t.snippet,\n          erpWeight,\n          feedAiRelevance: t.relevance\n        }));\n      }\n      module.exports = { feedAiThemesToEvents, SOURCE_EVENT_LABELS };\n    }\n  });\n\n  // src/voc/sources/source-fetcher.js\n  var require_source_fetcher = __commonJS({\n    \"src/voc/sources/source-fetcher.js\"(exports, module) {\n      \"use strict\";\n      var { getExtractor } = require_source_registry();\n      var { feedAiThemesToEvents } = require_feed_themes_to_events();\n      async function fetchAllSources(http, sourceDefs) {\n        const payloads = {};\n        await Promise.all(\n          sourceDefs.map(async ({ id, url }) => {\n            payloads[id] = await http({ method: \"GET\", url, json: true });\n          })\n        );\n        return payloads;\n      }\n      function extractThemeEvents(payloads, profile) {\n        const events = [];\n        for (const [sourceId, payload] of Object.entries(payloads)) {\n          const aiThemes = payload.aiFeedEvaluation?.themes;\n          if (Array.isArray(aiThemes) && aiThemes.length > 0) {\n            events.push(...feedAiThemesToEvents(aiThemes, sourceId));\n            continue;\n          }\n          const extractor = getExtractor(sourceId);\n          events.push(...extractor.extract(payload, profile));\n        }\n        return events;\n      }\n      module.exports = { fetchAllSources, extractThemeEvents };\n    }\n  });\n\n  // src/voc/corroboration/theme-aggregator.js\n  var require_theme_aggregator = __commonJS({\n    \"src/voc/corroboration/theme-aggregator.js\"(exports, module) {\n      \"use strict\";\n      function aggregateThemes(events) {\n        const themeMap = /* @__PURE__ */ new Map();\n        for (const e of events) {\n          if (!themeMap.has(e.theme)) {\n            themeMap.set(e.theme, {\n              theme: e.theme,\n              sources: /* @__PURE__ */ new Set(),\n              skus: /* @__PURE__ */ new Set(),\n              mentions: 0,\n              snippets: [],\n              erpWeight: 0\n            });\n          }\n          const row = themeMap.get(e.theme);\n          row.sources.add(e.source);\n          if (e.sku) row.skus.add(e.sku);\n          row.mentions += e.mentions;\n          if (e.snippet) row.snippets.push(e.snippet);\n          row.erpWeight += e.erpWeight;\n        }\n        return [...themeMap.values()].map((t) => ({\n          theme: t.theme,\n          corroborationScore: t.sources.size + t.erpWeight,\n          sources: [...t.sources],\n          skus: [...t.skus],\n          mentions: t.mentions,\n          snippets: t.snippets.slice(0, 2),\n          erpWeight: t.erpWeight\n        }));\n      }\n      module.exports = { aggregateThemes };\n    }\n  });\n\n  // src/voc/corroboration/corroboration-scorer.js\n  var require_corroboration_scorer = __commonJS({\n    \"src/voc/corroboration/corroboration-scorer.js\"(exports, module) {\n      \"use strict\";\n      function scoreThemes(themes, thresholds) {\n        const minScore = thresholds.minCorroborationScore ?? 2;\n        const minMentions = thresholds.minMentionsForActNow ?? 5;\n        const sorted = [...themes].sort(\n          (a, b) => b.corroborationScore - a.corroborationScore || b.mentions - a.mentions\n        );\n        const aiExcluded = (t) => t.aiRecommendation === \"exclude\";\n        const aiActNow = (t) => t.aiRecommendation === \"act_now\";\n        const aiWatch = (t) => t.aiRecommendation === \"watch\";\n        const actNow = sorted.filter(\n          (t) => !aiExcluded(t) && t.corroborationScore >= minScore && t.mentions >= minMentions && (!t.aiRecommendation || aiActNow(t))\n        );\n        const watchList = sorted.filter(\n          (t) => !actNow.includes(t) && !aiExcluded(t) && (aiWatch(t) || t.corroborationScore >= 1 && (t.corroborationScore < minScore || t.mentions < minMentions))\n        );\n        return {\n          themes: sorted,\n          actionable: actNow.length > 0,\n          actNow,\n          watchList,\n          thresholds: { minCorroborationScore: minScore, minMentionsForActNow: minMentions }\n        };\n      }\n      module.exports = { scoreThemes };\n    }\n  });\n\n  // src/voc/merge/parse-merged-items.js\n  var require_parse_merged_items = __commonJS({\n    \"src/voc/merge/parse-merged-items.js\"(exports, module) {\n      \"use strict\";\n      function unwrapItemJson(json) {\n        if (!json || typeof json !== \"object\") return json;\n        if (json.clientName && json.thresholds) return json;\n        if (json.source && json.aiFeedEvaluation) return json;\n        if (json.source) return json;\n        const body = json.body;\n        if (typeof body === \"string\") {\n          try {\n            return JSON.parse(body);\n          } catch {\n            return json;\n          }\n        }\n        if (body && typeof body === \"object\") return body;\n        if (json.data && typeof json.data === \"object\" && !Array.isArray(json.data)) return json.data;\n        return json;\n      }\n      function parseMergedItems(items) {\n        let profile = null;\n        const payloads = {};\n        for (const item of items) {\n          const json = unwrapItemJson(item.json);\n          if (json.clientName && json.thresholds) profile = json;\n          else if (json.source) payloads[json.source] = json;\n        }\n        return { profile, payloads };\n      }\n      module.exports = { unwrapItemJson, parseMergedItems };\n    }\n  });\n\n  // src/voc/ai/criteria-engine.js\n  var require_criteria_engine = __commonJS({\n    \"src/voc/ai/criteria-engine.js\"(exports, module) {\n      \"use strict\";\n      var POSITIVE_EXCEPTION_THEMES = /* @__PURE__ */ new Set([\"easy_to_use\"]);\n      function getCriteria(profile) {\n        const fromProfile = profile.aiEvaluation?.criteria;\n        if (Array.isArray(fromProfile) && fromProfile.length) return fromProfile;\n        return [\n          {\n            id: \"cross_source_corroboration\",\n            description: \"Theme appears in at least two independent signal types\",\n            weight: \"high\"\n          },\n          {\n            id: \"returns_alignment\",\n            description: \"ERP return reason codes align with the theme when returns data exists\",\n            weight: \"high\"\n          },\n          {\n            id: \"materiality\",\n            description: \"Enough customer mentions to be material for leadership this week\",\n            weight: \"medium\"\n          },\n          {\n            id: \"exception_focus\",\n            description: \"De-prioritize positive-only praise themes for an exception-only digest\",\n            weight: \"medium\"\n          }\n        ];\n      }\n      function themesLinkedToReturns(profile) {\n        const linked = /* @__PURE__ */ new Set();\n        for (const themes of Object.values(profile.returnReasonMap || {})) {\n          for (const t of themes) linked.add(t);\n        }\n        return linked;\n      }\n      function evaluateThemeWithCriteria(theme, profile) {\n        const criteria = getCriteria(profile);\n        const returnLinked = themesLinkedToReturns(profile);\n        const criteriaMet = [];\n        const criteriaMissed = [];\n        for (const c of criteria) {\n          switch (c.id) {\n            case \"cross_source_corroboration\":\n              if (theme.sources.length >= 2) criteriaMet.push(c.id);\n              else criteriaMissed.push(c.id);\n              break;\n            case \"returns_alignment\":\n              if (returnLinked.has(theme.theme) && theme.erpWeight >= 1) criteriaMet.push(c.id);\n              else if (!returnLinked.has(theme.theme)) criteriaMet.push(c.id);\n              else criteriaMissed.push(c.id);\n              break;\n            case \"materiality\":\n              if (theme.mentions >= 5) criteriaMet.push(c.id);\n              else criteriaMissed.push(c.id);\n              break;\n            case \"exception_focus\":\n              if (POSITIVE_EXCEPTION_THEMES.has(theme.theme) && theme.sources.length <= 1) {\n                criteriaMissed.push(c.id);\n              } else criteriaMet.push(c.id);\n              break;\n            default:\n              break;\n          }\n        }\n        let recommendation = \"watch\";\n        let rationale;\n        if (criteriaMissed.includes(\"exception_focus\") && POSITIVE_EXCEPTION_THEMES.has(theme.theme)) {\n          recommendation = \"exclude\";\n          rationale = \"Positive sentiment theme; excluded from exception digest per company AI criteria.\";\n        } else if (criteriaMet.includes(\"cross_source_corroboration\") && criteriaMet.includes(\"returns_alignment\") && criteriaMet.includes(\"materiality\")) {\n          recommendation = \"act_now\";\n          rationale = `Corroborated across ${theme.sources.length} sources with returns alignment and material mention volume.`;\n        } else if (criteriaMet.includes(\"materiality\") && (criteriaMet.includes(\"cross_source_corroboration\") || criteriaMet.includes(\"returns_alignment\"))) {\n          recommendation = \"watch\";\n          rationale = `Material theme but missing full corroboration (${criteriaMissed.join(\", \") || \"partial signals\"}).`;\n        } else {\n          recommendation = \"exclude\";\n          rationale = `Does not meet company criteria for this digest (${criteriaMissed.join(\", \") || \"weak signals\"}).`;\n        }\n        const confidence = recommendation === \"act_now\" ? 0.9 : recommendation === \"watch\" ? 0.65 : 0.4;\n        return {\n          theme: theme.theme,\n          recommendation,\n          confidence,\n          rationale,\n          criteriaMet,\n          criteriaMissed\n        };\n      }\n      function evaluateThemesWithCriteriaEngine(profile, themes) {\n        const evaluations = themes.map((t) => evaluateThemeWithCriteria(t, profile));\n        return {\n          model: profile.aiEvaluation?.model || \"criteria-engine\",\n          evaluations\n        };\n      }\n      module.exports = {\n        getCriteria,\n        evaluateThemeWithCriteria,\n        evaluateThemesWithCriteriaEngine\n      };\n    }\n  });\n\n  // src/voc/ai/apply-ai-evaluations.js\n  var require_apply_ai_evaluations = __commonJS({\n    \"src/voc/ai/apply-ai-evaluations.js\"(exports, module) {\n      \"use strict\";\n      function applyAiEvaluations(themes, aiResult) {\n        const byTheme = new Map((aiResult.evaluations || []).map((e) => [e.theme, e]));\n        return themes.map((t) => {\n          const ev = byTheme.get(t.theme);\n          if (!ev) return { ...t };\n          return {\n            ...t,\n            aiRecommendation: ev.recommendation,\n            aiConfidence: ev.confidence,\n            aiRationale: ev.rationale,\n            aiCriteriaMet: ev.criteriaMet || [],\n            aiCriteriaMissed: ev.criteriaMissed || []\n          };\n        });\n      }\n      module.exports = { applyAiEvaluations };\n    }\n  });\n\n  // src/voc/ai/provider-config.js\n  var require_provider_config = __commonJS({\n    \"src/voc/ai/provider-config.js\"(exports, module) {\n      \"use strict\";\n      var DEFAULT_AI_PROVIDER = \"anthropic\";\n      var DEFAULT_MODELS = {\n        anthropic: process.env.VOC_ANTHROPIC_MODEL || \"claude-3-5-sonnet-20241022\",\n        openai: process.env.VOC_OPENAI_MODEL || \"gpt-4o-mini\"\n      };\n      function normalizeAiProvider(provider) {\n        const value = String(provider || DEFAULT_AI_PROVIDER).toLowerCase();\n        return Object.prototype.hasOwnProperty.call(DEFAULT_MODELS, value) ? value : DEFAULT_AI_PROVIDER;\n      }\n      function resolveAiProviderConfig(aiEvaluation) {\n        const provider = normalizeAiProvider(aiEvaluation?.provider);\n        const providerModel = aiEvaluation?.models && aiEvaluation.models[provider];\n        const model = providerModel || aiEvaluation?.model || DEFAULT_MODELS[provider];\n        return { provider, model };\n      }\n      module.exports = {\n        DEFAULT_AI_PROVIDER,\n        DEFAULT_MODELS,\n        normalizeAiProvider,\n        resolveAiProviderConfig\n      };\n    }\n  });\n\n  // src/voc/pipeline/voc-pipeline.js\n  var require_voc_pipeline = __commonJS({\n    \"src/voc/pipeline/voc-pipeline.js\"(exports, module) {\n      \"use strict\";\n      var { createWiremockConfig } = require_config();\n      var { loadProfile } = require_profile_loader();\n      var { fetchAllSources, extractThemeEvents } = require_source_fetcher();\n      var { aggregateThemes } = require_theme_aggregator();\n      var { scoreThemes } = require_corroboration_scorer();\n      var { parseMergedItems } = require_parse_merged_items();\n      var { evaluateThemesWithCriteriaEngine } = require_criteria_engine();\n      var { applyAiEvaluations } = require_apply_ai_evaluations();\n      var { resolveAiProviderConfig } = require_provider_config();\n      var REQUIRED_SOURCES = [\n        \"amazon_customer_feedback\",\n        \"dtc_review_app\",\n        \"marketplace_reviews\",\n        \"erp_returns\"\n      ];\n      function runVocCore({ profile, payloads, aiEvaluation }) {\n        const events = extractThemeEvents(payloads, profile);\n        const themes = aggregateThemes(events);\n        const aiCfg = resolveAiProviderConfig(profile.aiEvaluation);\n        const external = aiEvaluation && Array.isArray(aiEvaluation.evaluations) ? {\n          model: aiEvaluation.model || aiCfg.model,\n          evaluations: aiEvaluation.evaluations,\n          source: aiEvaluation.source || \"ai-node\"\n        } : null;\n        const engineResult = external || evaluateThemesWithCriteriaEngine(profile, themes);\n        const enrichedThemes = applyAiEvaluations(themes, engineResult);\n        const normalized = scoreThemes(enrichedThemes, profile.thresholds);\n        return {\n          profile,\n          normalized,\n          aiEvaluation: {\n            model: engineResult.model,\n            source: external ? external.source : \"criteria-engine\",\n            evaluations: engineResult.evaluations,\n            note: external ? \"Canonical document evaluated by configured AI provider node.\" : \"Criteria engine fallback used for ranking.\"\n          },\n          exceptionOnly: profile.digest?.exceptionOnly !== false\n        };\n      }\n      function parseAndValidateMergedItems(items, { contextLabel }) {\n        const { profile, payloads } = parseMergedItems(items);\n        if (!profile) {\n          const keys = items.map((i) => Object.keys(i.json || {}).join(\",\")).join(\" | \");\n          throw new Error(\n            `Missing client profile in ${contextLabel} (${items.length} items). Set Merge Sources \\u2192 Number of Inputs = 5 and connect HTTP Client Profile to input 5. Got keys: ${keys || \"none\"}`\n          );\n        }\n        for (const id of REQUIRED_SOURCES) {\n          if (!payloads[id]) {\n            throw new Error(`Missing source \"${id}\" in ${contextLabel}`);\n          }\n        }\n        return { profile, payloads };\n      }\n      async function runVocFromMergedSources(items, deps = {}) {\n        const { profile, payloads } = parseAndValidateMergedItems(items, {\n          contextLabel: \"merge\"\n        });\n        return runVocCore({ profile, payloads });\n      }\n      function buildCanonicalFromMergedSources(items) {\n        const { profile, payloads } = parseAndValidateMergedItems(items, {\n          contextLabel: \"merged items\"\n        });\n        const feeds = Object.values(payloads).map((payload) => ({\n          source: payload.source,\n          payload\n        }));\n        return {\n          generatedAt: (/* @__PURE__ */ new Date()).toISOString(),\n          client: {\n            name: profile.clientName,\n            timezone: profile.timezone\n          },\n          thresholds: profile.thresholds,\n          themeTaxonomy: profile.themeTaxonomy || [],\n          criteria: profile.aiEvaluation?.criteria || [],\n          feeds\n        };\n      }\n      function runVocFromCanonicalPackage(canonicalPackage) {\n        const mergedItems = (canonicalPackage.mergedItems || []).map((json) => ({ json }));\n        const { profile, payloads } = parseAndValidateMergedItems(mergedItems, {\n          contextLabel: \"canonical package\"\n        });\n        return runVocCore({\n          profile,\n          payloads,\n          aiEvaluation: canonicalPackage.aiEvaluation\n        });\n      }\n      async function runVocPipeline({ http, wiremockBase = \"http://wiremock:8080\" }) {\n        const config = createWiremockConfig(wiremockBase);\n        const profile = await loadProfile(http, config.profileUrl);\n        const payloads = await fetchAllSources(http, config.sources);\n        return runVocCore({ profile, payloads });\n      }\n      module.exports = {\n        runVocPipeline,\n        runVocFromMergedSources,\n        runVocFromCanonicalPackage,\n        buildCanonicalFromMergedSources,\n        runVocCore,\n        parseAndValidateMergedItems\n      };\n    }\n  });\n\n  // src/n8n/nodes/entries/normalize-entry.js\n  var require_normalize_entry = __commonJS({\n    \"src/n8n/nodes/entries/normalize-entry.js\"(exports, module) {\n      var {\n        runVocFromMergedSources,\n        runVocFromCanonicalPackage,\n        buildCanonicalFromMergedSources\n      } = require_voc_pipeline();\n      module.exports = {\n        runVocFromMergedSources,\n        runVocFromCanonicalPackage,\n        buildCanonicalFromMergedSources\n      };\n    }\n  });\n  return require_normalize_entry();\n})();\n\n// Consolidates merged payloads and applies canonical AI evaluation.\nconst result = voc.runVocFromCanonicalPackage($json);\nreturn [\n  {\n    json: {\n      ...result,\n      canonicalDoc: $json.canonicalDoc || null,\n    },\n  },\n];\n"
+      },
+      "id": "a1b2c3d4-0007-4000-8000-000000000007",
+      "name": "Consolidate Themes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2360,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-actionable",
+              "leftValue": "={{ $json.normalized.actionable }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0008-4000-8000-000000000008",
+      "name": "Actionable themes?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2580,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\"use strict\";\nvar voc = (() => {\n  var __getOwnPropNames = Object.getOwnPropertyNames;\n  var __commonJS = (cb, mod) => function __require() {\n    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;\n  };\n\n  // src/voc/digest/digest-builder.js\n  var require_digest_builder = __commonJS({\n    \"src/voc/digest/digest-builder.js\"(exports, module) {\n      \"use strict\";\n      var OWNER_LINES = [\n        \"## Recommended owners\",\n        \"- packaging_damaged / leak_or_spill \\u2192 Packaging + 3PL\",\n        \"- pump_failure / defective \\u2192 QA / CAPA\",\n        \"- scent_too_strong / not_as_described \\u2192 Product + CX\"\n      ];\n      function buildDigest(profile, normalized) {\n        const lines = [];\n        const date = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);\n        lines.push(`# VOC Weekly Digest \\u2014 ${profile.clientName || \"Client\"}`);\n        lines.push(`**Week of ${date}**`);\n        lines.push(\"\");\n        if (!normalized.actionable) {\n          lines.push(\"**All clear.** No corroborated themes met threshold this week.\");\n          return lines.join(\"\\n\");\n        }\n        lines.push(\"## Act now\");\n        lines.push(\"_Themes below passed corroboration thresholds and company AI evaluation criteria._\");\n        lines.push(\"\");\n        for (const t of normalized.actNow.slice(0, 3)) {\n          lines.push(\n            `- **${t.theme}** (score ${t.corroborationScore}, ${t.mentions} mentions) \\u2014 sources: ${t.sources.join(\", \")} \\u2014 SKUs: ${t.skus.join(\", \") || \"n/a\"}`\n          );\n          if (t.aiRationale) lines.push(`  - AI: ${t.aiRationale}`);\n          if (t.snippets[0]) lines.push(`  - _\"${t.snippets[0]}\"_`);\n        }\n        if (normalized.watchList.length) {\n          lines.push(\"\");\n          lines.push(\"## Watch list\");\n          for (const t of normalized.watchList.slice(0, 3)) {\n            lines.push(`- ${t.theme} (score ${t.corroborationScore}) \\u2014 ${t.sources.join(\", \")}`);\n            if (t.aiRationale) lines.push(`  - AI: ${t.aiRationale}`);\n          }\n        }\n        lines.push(\"\");\n        lines.push(...OWNER_LINES);\n        return lines.join(\"\\n\");\n      }\n      module.exports = { buildDigest };\n    }\n  });\n\n  // src/n8n/nodes/entries/digest-entry.js\n  var require_digest_entry = __commonJS({\n    \"src/n8n/nodes/entries/digest-entry.js\"(exports, module) {\n      var { buildDigest } = require_digest_builder();\n      module.exports = { buildDigest };\n    }\n  });\n  return require_digest_entry();\n})();\n\nconst { profile, normalized } = $json;\nconst digestMarkdown = voc.buildDigest(profile, normalized);\n\nreturn [\n  {\n    json: {\n      profile,\n      normalized,\n      aiEvaluation: $json.aiEvaluation || null,\n      canonicalDoc: $json.canonicalDoc || null,\n      digestMarkdown,\n      delivered: true,\n      actNowCount: normalized.actNow.length,\n      watchListCount: normalized.watchList.length,\n    },\n  },\n];\n"
+      },
+      "id": "a1b2c3d4-0009-4000-8000-000000000009",
+      "name": "Build Digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1240,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\"use strict\";\nvar voc = (() => {\n  var __getOwnPropNames = Object.getOwnPropertyNames;\n  var __commonJS = (cb, mod) => function __require() {\n    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;\n  };\n\n  // src/voc/digest/digest-builder.js\n  var require_digest_builder = __commonJS({\n    \"src/voc/digest/digest-builder.js\"(exports, module) {\n      \"use strict\";\n      var OWNER_LINES = [\n        \"## Recommended owners\",\n        \"- packaging_damaged / leak_or_spill \\u2192 Packaging + 3PL\",\n        \"- pump_failure / defective \\u2192 QA / CAPA\",\n        \"- scent_too_strong / not_as_described \\u2192 Product + CX\"\n      ];\n      function buildDigest(profile, normalized) {\n        const lines = [];\n        const date = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);\n        lines.push(`# VOC Weekly Digest \\u2014 ${profile.clientName || \"Client\"}`);\n        lines.push(`**Week of ${date}**`);\n        lines.push(\"\");\n        if (!normalized.actionable) {\n          lines.push(\"**All clear.** No corroborated themes met threshold this week.\");\n          return lines.join(\"\\n\");\n        }\n        lines.push(\"## Act now\");\n        lines.push(\"_Themes below passed corroboration thresholds and company AI evaluation criteria._\");\n        lines.push(\"\");\n        for (const t of normalized.actNow.slice(0, 3)) {\n          lines.push(\n            `- **${t.theme}** (score ${t.corroborationScore}, ${t.mentions} mentions) \\u2014 sources: ${t.sources.join(\", \")} \\u2014 SKUs: ${t.skus.join(\", \") || \"n/a\"}`\n          );\n          if (t.aiRationale) lines.push(`  - AI: ${t.aiRationale}`);\n          if (t.snippets[0]) lines.push(`  - _\"${t.snippets[0]}\"_`);\n        }\n        if (normalized.watchList.length) {\n          lines.push(\"\");\n          lines.push(\"## Watch list\");\n          for (const t of normalized.watchList.slice(0, 3)) {\n            lines.push(`- ${t.theme} (score ${t.corroborationScore}) \\u2014 ${t.sources.join(\", \")}`);\n            if (t.aiRationale) lines.push(`  - AI: ${t.aiRationale}`);\n          }\n        }\n        lines.push(\"\");\n        lines.push(...OWNER_LINES);\n        return lines.join(\"\\n\");\n      }\n      module.exports = { buildDigest };\n    }\n  });\n\n  // src/n8n/nodes/entries/digest-entry.js\n  var require_digest_entry = __commonJS({\n    \"src/n8n/nodes/entries/digest-entry.js\"(exports, module) {\n      var { buildDigest } = require_digest_builder();\n      module.exports = { buildDigest };\n    }\n  });\n  return require_digest_entry();\n})();\n\nconst digestMarkdown =\n  '**All clear.** No corroborated themes met threshold (exception-only).';\nconst { profile, normalized } = $json;\n\nreturn [\n  {\n    json: {\n      profile,\n      normalized,\n      aiEvaluation: $json.aiEvaluation || null,\n      canonicalDoc: $json.canonicalDoc || null,\n      digestMarkdown,\n      delivered: false,\n      actNowCount: 0,\n      watchListCount: 0,\n    },\n  },\n];\n"
+      },
+      "id": "a1b2c3d4-0010-4000-8000-000000000010",
+      "name": "All Clear",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1240,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Brief output\nBuild canonical JSON, load AI guidelines, evaluate with provider from client profile (`aiEvaluation.provider` + `model`), then consolidate.\n\nOutput stays in `digestMarkdown`.",
+        "height": 160,
+        "width": 320
+      },
+      "id": "a1b2c3d4-0011-4000-8000-000000000011",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1960,
+        200
+      ]
+    },
+    {
+      "id": "a1b2c3d4-002d-4000-8000-00000000002d",
+      "name": "Build Canonical VOC",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        340
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\"use strict\";\nvar voc = (() => {\n  var __getOwnPropNames = Object.getOwnPropertyNames;\n  var __commonJS = (cb, mod) => function __require() {\n    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;\n  };\n\n  // src/voc/config.js\n  var require_config = __commonJS({\n    \"src/voc/config.js\"(exports, module) {\n      \"use strict\";\n      function createWiremockConfig(baseUrl) {\n        const base = baseUrl.replace(/\\/$/, \"\");\n        return {\n          profileUrl: `${base}/mock/config/client-profile`,\n          sources: [\n            {\n              id: \"amazon_customer_feedback\",\n              url: `${base}/mock/amazon/feedback/topics?asin=B000000001`\n            },\n            {\n              id: \"dtc_review_app\",\n              url: `${base}/mock/dtc/reviews?sku=SKU-1001&since=7d`\n            },\n            {\n              id: \"marketplace_reviews\",\n              url: `${base}/mock/marketplace/reviews?retailer=walmart&itemId=123456789`\n            },\n            {\n              id: \"erp_returns\",\n              url: `${base}/mock/erp/returns?period=current`\n            }\n          ]\n        };\n      }\n      module.exports = { createWiremockConfig };\n    }\n  });\n\n  // src/voc/profile/profile-loader.js\n  var require_profile_loader = __commonJS({\n    \"src/voc/profile/profile-loader.js\"(exports, module) {\n      \"use strict\";\n      async function loadProfile(http, profileUrl) {\n        const profile = await http({ method: \"GET\", url: profileUrl, json: true });\n        if (!profile?.clientName || !profile?.thresholds) {\n          throw new Error(\"Invalid client profile payload\");\n        }\n        return profile;\n      }\n      module.exports = { loadProfile };\n    }\n  });\n\n  // src/voc/sources/source-extractor.js\n  var require_source_extractor = __commonJS({\n    \"src/voc/sources/source-extractor.js\"(exports, module) {\n      \"use strict\";\n      function createExtractor(sourceId, extract) {\n        return {\n          sourceId,\n          extract(payload, profile) {\n            return extract(payload, profile);\n          }\n        };\n      }\n      module.exports = { createExtractor };\n    }\n  });\n\n  // src/voc/sources/extractors/amazon.js\n  var require_amazon = __commonJS({\n    \"src/voc/sources/extractors/amazon.js\"(exports, module) {\n      \"use strict\";\n      var { createExtractor } = require_source_extractor();\n      var amazonExtractor = createExtractor(\"amazon_customer_feedback\", (payload) => {\n        const events = [];\n        for (const topic of payload.topics || []) {\n          events.push({\n            theme: topic.label,\n            source: \"amazon_feedback\",\n            sku: null,\n            mentions: topic.mentions || 1,\n            snippet: topic.sampleSnippet,\n            erpWeight: 0\n          });\n        }\n        return events;\n      });\n      module.exports = { amazonExtractor };\n    }\n  });\n\n  // src/voc/sources/extractors/dtc.js\n  var require_dtc = __commonJS({\n    \"src/voc/sources/extractors/dtc.js\"(exports, module) {\n      \"use strict\";\n      var { createExtractor } = require_source_extractor();\n      var dtcExtractor = createExtractor(\"dtc_review_app\", (payload) => {\n        const events = [];\n        for (const r of payload.reviews || []) {\n          const theme = r.themeHint || (r.rating <= 2 ? \"not_as_described\" : \"easy_to_use\");\n          events.push({\n            theme,\n            source: \"dtc\",\n            sku: r.sku,\n            mentions: 1,\n            snippet: r.body || r.title,\n            erpWeight: 0\n          });\n        }\n        return events;\n      });\n      module.exports = { dtcExtractor };\n    }\n  });\n\n  // src/voc/sources/extractors/marketplace.js\n  var require_marketplace = __commonJS({\n    \"src/voc/sources/extractors/marketplace.js\"(exports, module) {\n      \"use strict\";\n      var { createExtractor } = require_source_extractor();\n      var marketplaceExtractor = createExtractor(\"marketplace_reviews\", (payload) => {\n        const events = [];\n        for (const r of payload.reviews || []) {\n          const theme = r.themeHint || (r.rating <= 2 ? \"packaging_damaged\" : \"easy_to_use\");\n          events.push({\n            theme,\n            source: \"marketplace\",\n            sku: null,\n            mentions: 1,\n            snippet: r.text || r.title,\n            erpWeight: 0\n          });\n        }\n        return events;\n      });\n      module.exports = { marketplaceExtractor };\n    }\n  });\n\n  // src/voc/sources/extractors/erp.js\n  var require_erp = __commonJS({\n    \"src/voc/sources/extractors/erp.js\"(exports, module) {\n      \"use strict\";\n      var { createExtractor } = require_source_extractor();\n      var erpExtractor = createExtractor(\"erp_returns\", (payload, profile) => {\n        const returnReasonMap = profile.returnReasonMap || {};\n        const events = [];\n        for (const row of payload.summary || []) {\n          for (const reason of row.topReasons || []) {\n            const themes = returnReasonMap[reason.code] || [\"not_as_described\"];\n            for (const theme of themes) {\n              events.push({\n                theme,\n                source: \"erp_returns\",\n                sku: row.sku,\n                mentions: reason.count,\n                snippet: reason.label,\n                erpWeight: 2\n              });\n            }\n          }\n        }\n        return events;\n      });\n      module.exports = { erpExtractor };\n    }\n  });\n\n  // src/voc/sources/source-registry.js\n  var require_source_registry = __commonJS({\n    \"src/voc/sources/source-registry.js\"(exports, module) {\n      \"use strict\";\n      var { amazonExtractor } = require_amazon();\n      var { dtcExtractor } = require_dtc();\n      var { marketplaceExtractor } = require_marketplace();\n      var { erpExtractor } = require_erp();\n      var registry = /* @__PURE__ */ new Map([\n        [amazonExtractor.sourceId, amazonExtractor],\n        [dtcExtractor.sourceId, dtcExtractor],\n        [marketplaceExtractor.sourceId, marketplaceExtractor],\n        [erpExtractor.sourceId, erpExtractor]\n      ]);\n      function getExtractor(sourceId) {\n        const extractor = registry.get(sourceId);\n        if (!extractor) {\n          throw new Error(`No extractor registered for source: ${sourceId}`);\n        }\n        return extractor;\n      }\n      module.exports = { getExtractor, registry };\n    }\n  });\n\n  // src/voc/ai/feed-themes-to-events.js\n  var require_feed_themes_to_events = __commonJS({\n    \"src/voc/ai/feed-themes-to-events.js\"(exports, module) {\n      \"use strict\";\n      var SOURCE_EVENT_LABELS = {\n        amazon_customer_feedback: \"amazon_feedback\",\n        dtc_review_app: \"dtc\",\n        marketplace_reviews: \"marketplace\",\n        erp_returns: \"erp_returns\"\n      };\n      function feedAiThemesToEvents(themes, sourceId) {\n        const source = SOURCE_EVENT_LABELS[sourceId] || sourceId;\n        const erpWeight = sourceId === \"erp_returns\" ? 2 : 0;\n        return themes.map((t) => ({\n          theme: t.theme,\n          source,\n          sku: t.sku || null,\n          mentions: t.mentions || 1,\n          snippet: t.snippet,\n          erpWeight,\n          feedAiRelevance: t.relevance\n        }));\n      }\n      module.exports = { feedAiThemesToEvents, SOURCE_EVENT_LABELS };\n    }\n  });\n\n  // src/voc/sources/source-fetcher.js\n  var require_source_fetcher = __commonJS({\n    \"src/voc/sources/source-fetcher.js\"(exports, module) {\n      \"use strict\";\n      var { getExtractor } = require_source_registry();\n      var { feedAiThemesToEvents } = require_feed_themes_to_events();\n      async function fetchAllSources(http, sourceDefs) {\n        const payloads = {};\n        await Promise.all(\n          sourceDefs.map(async ({ id, url }) => {\n            payloads[id] = await http({ method: \"GET\", url, json: true });\n          })\n        );\n        return payloads;\n      }\n      function extractThemeEvents(payloads, profile) {\n        const events = [];\n        for (const [sourceId, payload] of Object.entries(payloads)) {\n          const aiThemes = payload.aiFeedEvaluation?.themes;\n          if (Array.isArray(aiThemes) && aiThemes.length > 0) {\n            events.push(...feedAiThemesToEvents(aiThemes, sourceId));\n            continue;\n          }\n          const extractor = getExtractor(sourceId);\n          events.push(...extractor.extract(payload, profile));\n        }\n        return events;\n      }\n      module.exports = { fetchAllSources, extractThemeEvents };\n    }\n  });\n\n  // src/voc/corroboration/theme-aggregator.js\n  var require_theme_aggregator = __commonJS({\n    \"src/voc/corroboration/theme-aggregator.js\"(exports, module) {\n      \"use strict\";\n      function aggregateThemes(events) {\n        const themeMap = /* @__PURE__ */ new Map();\n        for (const e of events) {\n          if (!themeMap.has(e.theme)) {\n            themeMap.set(e.theme, {\n              theme: e.theme,\n              sources: /* @__PURE__ */ new Set(),\n              skus: /* @__PURE__ */ new Set(),\n              mentions: 0,\n              snippets: [],\n              erpWeight: 0\n            });\n          }\n          const row = themeMap.get(e.theme);\n          row.sources.add(e.source);\n          if (e.sku) row.skus.add(e.sku);\n          row.mentions += e.mentions;\n          if (e.snippet) row.snippets.push(e.snippet);\n          row.erpWeight += e.erpWeight;\n        }\n        return [...themeMap.values()].map((t) => ({\n          theme: t.theme,\n          corroborationScore: t.sources.size + t.erpWeight,\n          sources: [...t.sources],\n          skus: [...t.skus],\n          mentions: t.mentions,\n          snippets: t.snippets.slice(0, 2),\n          erpWeight: t.erpWeight\n        }));\n      }\n      module.exports = { aggregateThemes };\n    }\n  });\n\n  // src/voc/corroboration/corroboration-scorer.js\n  var require_corroboration_scorer = __commonJS({\n    \"src/voc/corroboration/corroboration-scorer.js\"(exports, module) {\n      \"use strict\";\n      function scoreThemes(themes, thresholds) {\n        const minScore = thresholds.minCorroborationScore ?? 2;\n        const minMentions = thresholds.minMentionsForActNow ?? 5;\n        const sorted = [...themes].sort(\n          (a, b) => b.corroborationScore - a.corroborationScore || b.mentions - a.mentions\n        );\n        const aiExcluded = (t) => t.aiRecommendation === \"exclude\";\n        const aiActNow = (t) => t.aiRecommendation === \"act_now\";\n        const aiWatch = (t) => t.aiRecommendation === \"watch\";\n        const actNow = sorted.filter(\n          (t) => !aiExcluded(t) && t.corroborationScore >= minScore && t.mentions >= minMentions && (!t.aiRecommendation || aiActNow(t))\n        );\n        const watchList = sorted.filter(\n          (t) => !actNow.includes(t) && !aiExcluded(t) && (aiWatch(t) || t.corroborationScore >= 1 && (t.corroborationScore < minScore || t.mentions < minMentions))\n        );\n        return {\n          themes: sorted,\n          actionable: actNow.length > 0,\n          actNow,\n          watchList,\n          thresholds: { minCorroborationScore: minScore, minMentionsForActNow: minMentions }\n        };\n      }\n      module.exports = { scoreThemes };\n    }\n  });\n\n  // src/voc/merge/parse-merged-items.js\n  var require_parse_merged_items = __commonJS({\n    \"src/voc/merge/parse-merged-items.js\"(exports, module) {\n      \"use strict\";\n      function unwrapItemJson(json) {\n        if (!json || typeof json !== \"object\") return json;\n        if (json.clientName && json.thresholds) return json;\n        if (json.source && json.aiFeedEvaluation) return json;\n        if (json.source) return json;\n        const body = json.body;\n        if (typeof body === \"string\") {\n          try {\n            return JSON.parse(body);\n          } catch {\n            return json;\n          }\n        }\n        if (body && typeof body === \"object\") return body;\n        if (json.data && typeof json.data === \"object\" && !Array.isArray(json.data)) return json.data;\n        return json;\n      }\n      function parseMergedItems(items) {\n        let profile = null;\n        const payloads = {};\n        for (const item of items) {\n          const json = unwrapItemJson(item.json);\n          if (json.clientName && json.thresholds) profile = json;\n          else if (json.source) payloads[json.source] = json;\n        }\n        return { profile, payloads };\n      }\n      module.exports = { unwrapItemJson, parseMergedItems };\n    }\n  });\n\n  // src/voc/ai/criteria-engine.js\n  var require_criteria_engine = __commonJS({\n    \"src/voc/ai/criteria-engine.js\"(exports, module) {\n      \"use strict\";\n      var POSITIVE_EXCEPTION_THEMES = /* @__PURE__ */ new Set([\"easy_to_use\"]);\n      function getCriteria(profile) {\n        const fromProfile = profile.aiEvaluation?.criteria;\n        if (Array.isArray(fromProfile) && fromProfile.length) return fromProfile;\n        return [\n          {\n            id: \"cross_source_corroboration\",\n            description: \"Theme appears in at least two independent signal types\",\n            weight: \"high\"\n          },\n          {\n            id: \"returns_alignment\",\n            description: \"ERP return reason codes align with the theme when returns data exists\",\n            weight: \"high\"\n          },\n          {\n            id: \"materiality\",\n            description: \"Enough customer mentions to be material for leadership this week\",\n            weight: \"medium\"\n          },\n          {\n            id: \"exception_focus\",\n            description: \"De-prioritize positive-only praise themes for an exception-only digest\",\n            weight: \"medium\"\n          }\n        ];\n      }\n      function themesLinkedToReturns(profile) {\n        const linked = /* @__PURE__ */ new Set();\n        for (const themes of Object.values(profile.returnReasonMap || {})) {\n          for (const t of themes) linked.add(t);\n        }\n        return linked;\n      }\n      function evaluateThemeWithCriteria(theme, profile) {\n        const criteria = getCriteria(profile);\n        const returnLinked = themesLinkedToReturns(profile);\n        const criteriaMet = [];\n        const criteriaMissed = [];\n        for (const c of criteria) {\n          switch (c.id) {\n            case \"cross_source_corroboration\":\n              if (theme.sources.length >= 2) criteriaMet.push(c.id);\n              else criteriaMissed.push(c.id);\n              break;\n            case \"returns_alignment\":\n              if (returnLinked.has(theme.theme) && theme.erpWeight >= 1) criteriaMet.push(c.id);\n              else if (!returnLinked.has(theme.theme)) criteriaMet.push(c.id);\n              else criteriaMissed.push(c.id);\n              break;\n            case \"materiality\":\n              if (theme.mentions >= 5) criteriaMet.push(c.id);\n              else criteriaMissed.push(c.id);\n              break;\n            case \"exception_focus\":\n              if (POSITIVE_EXCEPTION_THEMES.has(theme.theme) && theme.sources.length <= 1) {\n                criteriaMissed.push(c.id);\n              } else criteriaMet.push(c.id);\n              break;\n            default:\n              break;\n          }\n        }\n        let recommendation = \"watch\";\n        let rationale;\n        if (criteriaMissed.includes(\"exception_focus\") && POSITIVE_EXCEPTION_THEMES.has(theme.theme)) {\n          recommendation = \"exclude\";\n          rationale = \"Positive sentiment theme; excluded from exception digest per company AI criteria.\";\n        } else if (criteriaMet.includes(\"cross_source_corroboration\") && criteriaMet.includes(\"returns_alignment\") && criteriaMet.includes(\"materiality\")) {\n          recommendation = \"act_now\";\n          rationale = `Corroborated across ${theme.sources.length} sources with returns alignment and material mention volume.`;\n        } else if (criteriaMet.includes(\"materiality\") && (criteriaMet.includes(\"cross_source_corroboration\") || criteriaMet.includes(\"returns_alignment\"))) {\n          recommendation = \"watch\";\n          rationale = `Material theme but missing full corroboration (${criteriaMissed.join(\", \") || \"partial signals\"}).`;\n        } else {\n          recommendation = \"exclude\";\n          rationale = `Does not meet company criteria for this digest (${criteriaMissed.join(\", \") || \"weak signals\"}).`;\n        }\n        const confidence = recommendation === \"act_now\" ? 0.9 : recommendation === \"watch\" ? 0.65 : 0.4;\n        return {\n          theme: theme.theme,\n          recommendation,\n          confidence,\n          rationale,\n          criteriaMet,\n          criteriaMissed\n        };\n      }\n      function evaluateThemesWithCriteriaEngine(profile, themes) {\n        const evaluations = themes.map((t) => evaluateThemeWithCriteria(t, profile));\n        return {\n          model: profile.aiEvaluation?.model || \"criteria-engine\",\n          evaluations\n        };\n      }\n      module.exports = {\n        getCriteria,\n        evaluateThemeWithCriteria,\n        evaluateThemesWithCriteriaEngine\n      };\n    }\n  });\n\n  // src/voc/ai/apply-ai-evaluations.js\n  var require_apply_ai_evaluations = __commonJS({\n    \"src/voc/ai/apply-ai-evaluations.js\"(exports, module) {\n      \"use strict\";\n      function applyAiEvaluations(themes, aiResult) {\n        const byTheme = new Map((aiResult.evaluations || []).map((e) => [e.theme, e]));\n        return themes.map((t) => {\n          const ev = byTheme.get(t.theme);\n          if (!ev) return { ...t };\n          return {\n            ...t,\n            aiRecommendation: ev.recommendation,\n            aiConfidence: ev.confidence,\n            aiRationale: ev.rationale,\n            aiCriteriaMet: ev.criteriaMet || [],\n            aiCriteriaMissed: ev.criteriaMissed || []\n          };\n        });\n      }\n      module.exports = { applyAiEvaluations };\n    }\n  });\n\n  // src/voc/ai/provider-config.js\n  var require_provider_config = __commonJS({\n    \"src/voc/ai/provider-config.js\"(exports, module) {\n      \"use strict\";\n      var DEFAULT_AI_PROVIDER = \"anthropic\";\n      var DEFAULT_MODELS = {\n        anthropic: process.env.VOC_ANTHROPIC_MODEL || \"claude-3-5-sonnet-20241022\",\n        openai: process.env.VOC_OPENAI_MODEL || \"gpt-4o-mini\"\n      };\n      function normalizeAiProvider(provider) {\n        const value = String(provider || DEFAULT_AI_PROVIDER).toLowerCase();\n        return Object.prototype.hasOwnProperty.call(DEFAULT_MODELS, value) ? value : DEFAULT_AI_PROVIDER;\n      }\n      function resolveAiProviderConfig(aiEvaluation) {\n        const provider = normalizeAiProvider(aiEvaluation?.provider);\n        const providerModel = aiEvaluation?.models && aiEvaluation.models[provider];\n        const model = providerModel || aiEvaluation?.model || DEFAULT_MODELS[provider];\n        return { provider, model };\n      }\n      module.exports = {\n        DEFAULT_AI_PROVIDER,\n        DEFAULT_MODELS,\n        normalizeAiProvider,\n        resolveAiProviderConfig\n      };\n    }\n  });\n\n  // src/voc/pipeline/voc-pipeline.js\n  var require_voc_pipeline = __commonJS({\n    \"src/voc/pipeline/voc-pipeline.js\"(exports, module) {\n      \"use strict\";\n      var { createWiremockConfig } = require_config();\n      var { loadProfile } = require_profile_loader();\n      var { fetchAllSources, extractThemeEvents } = require_source_fetcher();\n      var { aggregateThemes } = require_theme_aggregator();\n      var { scoreThemes } = require_corroboration_scorer();\n      var { parseMergedItems } = require_parse_merged_items();\n      var { evaluateThemesWithCriteriaEngine } = require_criteria_engine();\n      var { applyAiEvaluations } = require_apply_ai_evaluations();\n      var { resolveAiProviderConfig } = require_provider_config();\n      var REQUIRED_SOURCES = [\n        \"amazon_customer_feedback\",\n        \"dtc_review_app\",\n        \"marketplace_reviews\",\n        \"erp_returns\"\n      ];\n      function runVocCore({ profile, payloads, aiEvaluation }) {\n        const events = extractThemeEvents(payloads, profile);\n        const themes = aggregateThemes(events);\n        const aiCfg = resolveAiProviderConfig(profile.aiEvaluation);\n        const external = aiEvaluation && Array.isArray(aiEvaluation.evaluations) ? {\n          model: aiEvaluation.model || aiCfg.model,\n          evaluations: aiEvaluation.evaluations,\n          source: aiEvaluation.source || \"ai-node\"\n        } : null;\n        const engineResult = external || evaluateThemesWithCriteriaEngine(profile, themes);\n        const enrichedThemes = applyAiEvaluations(themes, engineResult);\n        const normalized = scoreThemes(enrichedThemes, profile.thresholds);\n        return {\n          profile,\n          normalized,\n          aiEvaluation: {\n            model: engineResult.model,\n            source: external ? external.source : \"criteria-engine\",\n            evaluations: engineResult.evaluations,\n            note: external ? \"Canonical document evaluated by configured AI provider node.\" : \"Criteria engine fallback used for ranking.\"\n          },\n          exceptionOnly: profile.digest?.exceptionOnly !== false\n        };\n      }\n      function parseAndValidateMergedItems(items, { contextLabel }) {\n        const { profile, payloads } = parseMergedItems(items);\n        if (!profile) {\n          const keys = items.map((i) => Object.keys(i.json || {}).join(\",\")).join(\" | \");\n          throw new Error(\n            `Missing client profile in ${contextLabel} (${items.length} items). Set Merge Sources \\u2192 Number of Inputs = 5 and connect HTTP Client Profile to input 5. Got keys: ${keys || \"none\"}`\n          );\n        }\n        for (const id of REQUIRED_SOURCES) {\n          if (!payloads[id]) {\n            throw new Error(`Missing source \"${id}\" in ${contextLabel}`);\n          }\n        }\n        return { profile, payloads };\n      }\n      async function runVocFromMergedSources(items, deps = {}) {\n        const { profile, payloads } = parseAndValidateMergedItems(items, {\n          contextLabel: \"merge\"\n        });\n        return runVocCore({ profile, payloads });\n      }\n      function buildCanonicalFromMergedSources(items) {\n        const { profile, payloads } = parseAndValidateMergedItems(items, {\n          contextLabel: \"merged items\"\n        });\n        const feeds = Object.values(payloads).map((payload) => ({\n          source: payload.source,\n          payload\n        }));\n        return {\n          generatedAt: (/* @__PURE__ */ new Date()).toISOString(),\n          client: {\n            name: profile.clientName,\n            timezone: profile.timezone\n          },\n          thresholds: profile.thresholds,\n          themeTaxonomy: profile.themeTaxonomy || [],\n          criteria: profile.aiEvaluation?.criteria || [],\n          feeds\n        };\n      }\n      function runVocFromCanonicalPackage(canonicalPackage) {\n        const mergedItems = (canonicalPackage.mergedItems || []).map((json) => ({ json }));\n        const { profile, payloads } = parseAndValidateMergedItems(mergedItems, {\n          contextLabel: \"canonical package\"\n        });\n        return runVocCore({\n          profile,\n          payloads,\n          aiEvaluation: canonicalPackage.aiEvaluation\n        });\n      }\n      async function runVocPipeline({ http, wiremockBase = \"http://wiremock:8080\" }) {\n        const config = createWiremockConfig(wiremockBase);\n        const profile = await loadProfile(http, config.profileUrl);\n        const payloads = await fetchAllSources(http, config.sources);\n        return runVocCore({ profile, payloads });\n      }\n      module.exports = {\n        runVocPipeline,\n        runVocFromMergedSources,\n        runVocFromCanonicalPackage,\n        buildCanonicalFromMergedSources,\n        runVocCore,\n        parseAndValidateMergedItems\n      };\n    }\n  });\n\n  // src/n8n/nodes/entries/normalize-entry.js\n  var require_normalize_entry = __commonJS({\n    \"src/n8n/nodes/entries/normalize-entry.js\"(exports, module) {\n      var {\n        runVocFromMergedSources,\n        runVocFromCanonicalPackage,\n        buildCanonicalFromMergedSources\n      } = require_voc_pipeline();\n      module.exports = {\n        runVocFromMergedSources,\n        runVocFromCanonicalPackage,\n        buildCanonicalFromMergedSources\n      };\n    }\n  });\n  return require_normalize_entry();\n})();\n\n// Build canonical VOC document from merged sources.\nconst canonicalDoc = voc.buildCanonicalFromMergedSources($input.all());\nconst mergedItems = $input.all().map((item) => item.json);\n\nreturn [\n  {\n    json: {\n      canonicalDoc,\n      mergedItems,\n    },\n  },\n];\n"
+      }
+    },
+    {
+      "id": "a1b2c3d4-002e-4000-8000-00000000002e",
+      "name": "Load AI Guidelines Markdown",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1260,
+        340
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.VOC_MOCK_BASE_URL.replace(/\\/$/, '') + '/mock/config/ai-evaluation-guidelines.md' }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.VOC_MOCK_BASE_URL.replace(/\\/$/, '') + '/mock/demo/render' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "a1b2c3d4-0032-4000-8000-000000000032",
+      "name": "Publish Demo View",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2800,
+        340
+      ]
+    },
+    {
+      "id": "a1b2c3d4-002f-4000-8000-00000000002f",
+      "name": "Prepare Canonical AI Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1480,
+        340
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\"use strict\";\nvar voc = (() => {\n  var __getOwnPropNames = Object.getOwnPropertyNames;\n  var __commonJS = (cb, mod) => function __require() {\n    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;\n  };\n\n  // src/voc/ai/feed-eval-prompt.js\n  var require_feed_eval_prompt = __commonJS({\n    \"src/voc/ai/feed-eval-prompt.js\"(exports, module) {\n      \"use strict\";\n      function buildFeedEvalPrompt(profile, feed) {\n        const criteria = profile.aiEvaluation?.criteria || [];\n        const instructions = profile.aiEvaluation?.instructions || \"\";\n        const taxonomy = profile.themeTaxonomy || [];\n        return [\n          \"You evaluate a single VOC data feed before it is consolidated with other sources.\",\n          `Company: ${profile.clientName || \"Client\"}`,\n          instructions ? `Instructions: ${instructions}` : \"\",\n          `Allowed themes (taxonomy): ${taxonomy.join(\", \") || \"use snake_case labels\"}`,\n          \"Criteria (apply when scoring each theme in this feed only):\",\n          ...criteria.map((c) => `- ${c.id}: ${c.description}`),\n          \"\",\n          `Feed source id: ${feed.source}`,\n          \"Feed JSON:\",\n          JSON.stringify(feed, null, 2),\n          \"\",\n          \"Reply with ONLY valid JSON (no markdown):\",\n          '{\"source\":\"<feed source id>\",\"themes\":[{\"theme\":\"<taxonomy id>\",\"mentions\":<number>,\"snippet\":\"<short quote>\",\"relevance\":\"high|medium|low\"}]}'\n        ].filter(Boolean).join(\"\\n\");\n      }\n      module.exports = { buildFeedEvalPrompt };\n    }\n  });\n\n  // src/voc/ai/provider-config.js\n  var require_provider_config = __commonJS({\n    \"src/voc/ai/provider-config.js\"(exports, module) {\n      \"use strict\";\n      var DEFAULT_AI_PROVIDER = \"anthropic\";\n      var DEFAULT_MODELS = {\n        anthropic: process.env.VOC_ANTHROPIC_MODEL || \"claude-3-5-sonnet-20241022\",\n        openai: process.env.VOC_OPENAI_MODEL || \"gpt-4o-mini\"\n      };\n      function normalizeAiProvider(provider) {\n        const value = String(provider || DEFAULT_AI_PROVIDER).toLowerCase();\n        return Object.prototype.hasOwnProperty.call(DEFAULT_MODELS, value) ? value : DEFAULT_AI_PROVIDER;\n      }\n      function resolveAiProviderConfig(aiEvaluation) {\n        const provider = normalizeAiProvider(aiEvaluation?.provider);\n        const providerModel = aiEvaluation?.models && aiEvaluation.models[provider];\n        const model = providerModel || aiEvaluation?.model || DEFAULT_MODELS[provider];\n        return { provider, model };\n      }\n      module.exports = {\n        DEFAULT_AI_PROVIDER,\n        DEFAULT_MODELS,\n        normalizeAiProvider,\n        resolveAiProviderConfig\n      };\n    }\n  });\n\n  // src/voc/ai/parse-ai-response.js\n  var require_parse_ai_response = __commonJS({\n    \"src/voc/ai/parse-ai-response.js\"(exports, module) {\n      \"use strict\";\n      function parseFeedAiEvaluation(providerItem) {\n        const parsed = parseAiJson(providerItem);\n        if (!parsed || !Array.isArray(parsed.themes)) {\n          throw new Error(\"Feed AI response must include themes[]\");\n        }\n        return parsed;\n      }\n      function parseCanonicalAiEvaluation(providerItem) {\n        const parsed = parseAiJson(providerItem);\n        if (!parsed || !Array.isArray(parsed.evaluations)) {\n          throw new Error(\"Canonical AI response must include evaluations[]\");\n        }\n        return {\n          model: parsed.model || \"unknown\",\n          source: parsed.source || \"ai-node\",\n          evaluations: parsed.evaluations\n        };\n      }\n      function parseAiJson(providerItem) {\n        const text = extractAssistantText(providerItem);\n        if (!text) {\n          throw new Error(\"AI response missing assistant text\");\n        }\n        const trimmed = text.trim();\n        const jsonStr = trimmed.startsWith(\"```\") ? trimmed.replace(/^```(?:json)?\\s*/i, \"\").replace(/\\s*```$/, \"\").trim() : trimmed;\n        return JSON.parse(jsonStr);\n      }\n      function extractAssistantText(item) {\n        if (!item || typeof item !== \"object\") return \"\";\n        const openAiContent = item.choices?.[0]?.message?.content;\n        if (typeof openAiContent === \"string\") return openAiContent;\n        if (typeof item.text === \"string\") return item.text;\n        if (Array.isArray(item.content)) {\n          const block = item.content.find((b) => b.type === \"text\" && b.text);\n          if (block) return block.text;\n        }\n        if (item.message?.content) {\n          return extractAssistantText(item.message);\n        }\n        if (Array.isArray(item.output)) {\n          for (const o of item.output) {\n            const t = extractAssistantText(o);\n            if (t) return t;\n          }\n        }\n        return \"\";\n      }\n      module.exports = {\n        parseFeedAiEvaluation,\n        parseCanonicalAiEvaluation,\n        parseAiJson,\n        extractAssistantText\n      };\n    }\n  });\n\n  // src/n8n/nodes/entries/feed-ai-entry.js\n  var require_feed_ai_entry = __commonJS({\n    \"src/n8n/nodes/entries/feed-ai-entry.js\"(exports, module) {\n      var { buildFeedEvalPrompt } = require_feed_eval_prompt();\n      var { resolveAiProviderConfig } = require_provider_config();\n      var {\n        parseFeedAiEvaluation,\n        parseCanonicalAiEvaluation\n      } = require_parse_ai_response();\n      module.exports = {\n        buildFeedEvalPrompt,\n        resolveAiProviderConfig,\n        parseFeedAiEvaluation,\n        parseCanonicalAiEvaluation\n      };\n    }\n  });\n  return require_feed_ai_entry();\n})();\n\n// Compose canonical AI prompt from profile config + guidelines markdown.\nconst canonicalNode = $('Build Canonical VOC').first().json;\nconst guidelinesText = typeof $json === 'string' ? $json : $json.body || $json.data || '';\n\nif (!guidelinesText || typeof guidelinesText !== 'string') {\n  throw new Error('Guidelines markdown response missing text body');\n}\n\nfunction findProfile(mergedItems) {\n  for (const item of mergedItems || []) {\n    if (item?.clientName && item?.aiEvaluation) return item;\n  }\n  return null;\n}\n\nconst profile = findProfile(canonicalNode.mergedItems);\nconst { provider: aiProvider, model: aiModel } = voc.resolveAiProviderConfig(\n  profile?.aiEvaluation\n);\n\nconst prompt = [\n  'You are evaluating consolidated VOC signals for weekly executive action.',\n  'Use the markdown guidelines exactly as policy.',\n  '',\n  '## Evaluation guidelines (markdown)',\n  guidelinesText,\n  '',\n  '## Canonical VOC JSON',\n  JSON.stringify(canonicalNode.canonicalDoc, null, 2),\n  '',\n  'Return only valid JSON with this shape:',\n  `{\"model\":\"${aiModel}\",\"source\":\"${aiProvider}-node\",\"evaluations\":[{\"theme\":\"<id>\",\"recommendation\":\"act_now|watch|exclude\",\"confidence\":0.0,\"rationale\":\"...\",\"criteriaMet\":[\"...\"],\"criteriaMissed\":[\"...\"]}]}`,\n].join('\\n');\n\nreturn {\n  json: {\n    canonicalDoc: canonicalNode.canonicalDoc,\n    mergedItems: canonicalNode.mergedItems,\n    guidelinesMarkdown: guidelinesText,\n    aiProvider,\n    aiModel,\n    prompt,\n  },\n};\n"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0033-4000-8000-000000000033",
+      "name": "Parse Canonical AI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2140,
+        340
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\"use strict\";\nvar voc = (() => {\n  var __getOwnPropNames = Object.getOwnPropertyNames;\n  var __commonJS = (cb, mod) => function __require() {\n    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;\n  };\n\n  // src/voc/ai/feed-eval-prompt.js\n  var require_feed_eval_prompt = __commonJS({\n    \"src/voc/ai/feed-eval-prompt.js\"(exports, module) {\n      \"use strict\";\n      function buildFeedEvalPrompt(profile, feed) {\n        const criteria = profile.aiEvaluation?.criteria || [];\n        const instructions = profile.aiEvaluation?.instructions || \"\";\n        const taxonomy = profile.themeTaxonomy || [];\n        return [\n          \"You evaluate a single VOC data feed before it is consolidated with other sources.\",\n          `Company: ${profile.clientName || \"Client\"}`,\n          instructions ? `Instructions: ${instructions}` : \"\",\n          `Allowed themes (taxonomy): ${taxonomy.join(\", \") || \"use snake_case labels\"}`,\n          \"Criteria (apply when scoring each theme in this feed only):\",\n          ...criteria.map((c) => `- ${c.id}: ${c.description}`),\n          \"\",\n          `Feed source id: ${feed.source}`,\n          \"Feed JSON:\",\n          JSON.stringify(feed, null, 2),\n          \"\",\n          \"Reply with ONLY valid JSON (no markdown):\",\n          '{\"source\":\"<feed source id>\",\"themes\":[{\"theme\":\"<taxonomy id>\",\"mentions\":<number>,\"snippet\":\"<short quote>\",\"relevance\":\"high|medium|low\"}]}'\n        ].filter(Boolean).join(\"\\n\");\n      }\n      module.exports = { buildFeedEvalPrompt };\n    }\n  });\n\n  // src/voc/ai/provider-config.js\n  var require_provider_config = __commonJS({\n    \"src/voc/ai/provider-config.js\"(exports, module) {\n      \"use strict\";\n      var DEFAULT_AI_PROVIDER = \"anthropic\";\n      var DEFAULT_MODELS = {\n        anthropic: process.env.VOC_ANTHROPIC_MODEL || \"claude-3-5-sonnet-20241022\",\n        openai: process.env.VOC_OPENAI_MODEL || \"gpt-4o-mini\"\n      };\n      function normalizeAiProvider(provider) {\n        const value = String(provider || DEFAULT_AI_PROVIDER).toLowerCase();\n        return Object.prototype.hasOwnProperty.call(DEFAULT_MODELS, value) ? value : DEFAULT_AI_PROVIDER;\n      }\n      function resolveAiProviderConfig(aiEvaluation) {\n        const provider = normalizeAiProvider(aiEvaluation?.provider);\n        const providerModel = aiEvaluation?.models && aiEvaluation.models[provider];\n        const model = providerModel || aiEvaluation?.model || DEFAULT_MODELS[provider];\n        return { provider, model };\n      }\n      module.exports = {\n        DEFAULT_AI_PROVIDER,\n        DEFAULT_MODELS,\n        normalizeAiProvider,\n        resolveAiProviderConfig\n      };\n    }\n  });\n\n  // src/voc/ai/parse-ai-response.js\n  var require_parse_ai_response = __commonJS({\n    \"src/voc/ai/parse-ai-response.js\"(exports, module) {\n      \"use strict\";\n      function parseFeedAiEvaluation(providerItem) {\n        const parsed = parseAiJson(providerItem);\n        if (!parsed || !Array.isArray(parsed.themes)) {\n          throw new Error(\"Feed AI response must include themes[]\");\n        }\n        return parsed;\n      }\n      function parseCanonicalAiEvaluation(providerItem) {\n        const parsed = parseAiJson(providerItem);\n        if (!parsed || !Array.isArray(parsed.evaluations)) {\n          throw new Error(\"Canonical AI response must include evaluations[]\");\n        }\n        return {\n          model: parsed.model || \"unknown\",\n          source: parsed.source || \"ai-node\",\n          evaluations: parsed.evaluations\n        };\n      }\n      function parseAiJson(providerItem) {\n        const text = extractAssistantText(providerItem);\n        if (!text) {\n          throw new Error(\"AI response missing assistant text\");\n        }\n        const trimmed = text.trim();\n        const jsonStr = trimmed.startsWith(\"```\") ? trimmed.replace(/^```(?:json)?\\s*/i, \"\").replace(/\\s*```$/, \"\").trim() : trimmed;\n        return JSON.parse(jsonStr);\n      }\n      function extractAssistantText(item) {\n        if (!item || typeof item !== \"object\") return \"\";\n        const openAiContent = item.choices?.[0]?.message?.content;\n        if (typeof openAiContent === \"string\") return openAiContent;\n        if (typeof item.text === \"string\") return item.text;\n        if (Array.isArray(item.content)) {\n          const block = item.content.find((b) => b.type === \"text\" && b.text);\n          if (block) return block.text;\n        }\n        if (item.message?.content) {\n          return extractAssistantText(item.message);\n        }\n        if (Array.isArray(item.output)) {\n          for (const o of item.output) {\n            const t = extractAssistantText(o);\n            if (t) return t;\n          }\n        }\n        return \"\";\n      }\n      module.exports = {\n        parseFeedAiEvaluation,\n        parseCanonicalAiEvaluation,\n        parseAiJson,\n        extractAssistantText\n      };\n    }\n  });\n\n  // src/n8n/nodes/entries/feed-ai-entry.js\n  var require_feed_ai_entry = __commonJS({\n    \"src/n8n/nodes/entries/feed-ai-entry.js\"(exports, module) {\n      var { buildFeedEvalPrompt } = require_feed_eval_prompt();\n      var { resolveAiProviderConfig } = require_provider_config();\n      var {\n        parseFeedAiEvaluation,\n        parseCanonicalAiEvaluation\n      } = require_parse_ai_response();\n      module.exports = {\n        buildFeedEvalPrompt,\n        resolveAiProviderConfig,\n        parseFeedAiEvaluation,\n        parseCanonicalAiEvaluation\n      };\n    }\n  });\n  return require_feed_ai_entry();\n})();\n\n// Parse canonical AI evaluation (Anthropic or OpenAI node output).\nconst base = $('Prepare Canonical AI Prompt').first().json;\nconst aiEvaluation = voc.parseCanonicalAiEvaluation($json);\n\nreturn {\n  json: {\n    canonicalDoc: base.canonicalDoc,\n    mergedItems: base.mergedItems,\n    aiEvaluation,\n  },\n};\n"
+      }
+    },
+    {
+      "id": "a1b2c3d4-003a-4000-8000-00000000003a",
+      "name": "AI Provider is OpenAI?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1700,
+        340
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-openai-provider",
+              "leftValue": "={{ $json.aiProvider }}",
+              "rightValue": "openai",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "a1b2c3d4-0030-4000-8000-000000000030",
+      "name": "Evaluate Canonical (OpenAI)",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1920,
+        260
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "vocOpenAiApi01",
+          "name": "OpenAI API (VOC)"
+        }
+      },
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.aiModel }}"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.prompt }}",
+              "role": "user"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "a1b2c3d4-0031-4000-8000-000000000031",
+      "name": "Evaluate Canonical (Anthropic)",
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        420
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "vocAnthropicApi01",
+          "name": "Anthropic API (VOC)"
+        }
+      },
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.aiModel }}"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.prompt }}",
+              "role": "user"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Weekly Monday 7am": {
+      "main": [
+        [
+          {
+            "node": "HTTP Client Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Client Profile": {
+      "main": [
+        [
+          {
+            "node": "HTTP Amazon Topics",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP DTC Reviews",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Marketplace Reviews",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP ERP Returns",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Sources",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "HTTP Amazon Topics": {
+      "main": [
+        [
+          {
+            "node": "Merge Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP DTC Reviews": {
+      "main": [
+        [
+          {
+            "node": "Merge Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Marketplace Reviews": {
+      "main": [
+        [
+          {
+            "node": "Merge Sources",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "HTTP ERP Returns": {
+      "main": [
+        [
+          {
+            "node": "Merge Sources",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge Sources": {
+      "main": [
+        [
+          {
+            "node": "Build Canonical VOC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Canonical VOC": {
+      "main": [
+        [
+          {
+            "node": "Load AI Guidelines Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load AI Guidelines Markdown": {
+      "main": [
+        [
+          {
+            "node": "Prepare Canonical AI Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Canonical AI Prompt": {
+      "main": [
+        [
+          {
+            "node": "AI Provider is OpenAI?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Provider is OpenAI?": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Canonical (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Evaluate Canonical (Anthropic)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Canonical (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Parse Canonical AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Canonical (Anthropic)": {
+      "main": [
+        [
+          {
+            "node": "Parse Canonical AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Canonical AI": {
+      "main": [
+        [
+          {
+            "node": "Consolidate Themes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidate Themes": {
+      "main": [
+        [
+          {
+            "node": "Actionable themes?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actionable themes?": {
+      "main": [
+        [
+          {
+            "node": "Build Digest",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "All Clear",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Digest": {
+      "main": [
+        [
+          {
+            "node": "Publish Demo View",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All Clear": {
+      "main": [
+        [
+          {
+            "node": "Publish Demo View",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

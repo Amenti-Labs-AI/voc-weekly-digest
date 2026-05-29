@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/mock/config/ai-evaluation-guidelines.md"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/markdown"
+    },
+    "bodyFileName": "ai-evaluation-guidelines.md"
+  }
+}

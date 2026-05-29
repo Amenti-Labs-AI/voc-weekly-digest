@@ -1,0 +1,20 @@
+{
+  "priority": 0,
+  "scenarioName": "Canonical AI Variation",
+  "requiredScenarioState": "variant-3",
+  "newScenarioState": "variant-4",
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/messages",
+    "bodyPatterns": [{ "contains": "Canonical VOC JSON" }]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json",
+      "anthropic-ratelimit-requests-limit": "1000",
+      "anthropic-ratelimit-requests-remaining": "999"
+    },
+    "bodyFileName": "providers/anthropic-messages-v3.json"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "scenarioName": "ERP Source Variation",
+  "requiredScenarioState": "variant-2",
+  "newScenarioState": "Started",
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/mock/erp/returns"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "source": "erp_returns",
+      "period": "{{request.query.period}}",
+      "summary": [
+        {
+          "sku": "SKU-1001",
+          "upc": "012345678901",
+          "returnCount": 26,
+          "topReasons": [
+            { "code": "DAMAGED", "count": 13, "label": "Arrived damaged" },
+            { "code": "DEFECTIVE", "count": 10, "label": "Product defective / does not work" },
+            { "code": "NOT_AS_DESCRIBED", "count": 3, "label": "Not as described" }
+          ]
+        },
+        {
+          "sku": "SKU-2002",
+          "upc": "012345678902",
+          "returnCount": 7,
+          "topReasons": [
+            { "code": "NOT_AS_DESCRIBED", "count": 4, "label": "Not as described" },
+            { "code": "DAMAGED", "count": 2, "label": "Arrived damaged" },
+            { "code": "CHANGED_MIND", "count": 1, "label": "No longer needed" }
+          ]
+        }
+      ]
+    },
+    "transformers": ["response-template"]
+  }
+}

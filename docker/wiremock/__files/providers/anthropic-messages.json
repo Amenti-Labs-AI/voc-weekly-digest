@@ -1,0 +1,17 @@
+{
+  "id": "msg_wiremock_voc_demo",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-3-5-sonnet-20241022",
+  "stop_reason": "end_turn",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"evaluations\":[{\"theme\":\"packaging_damaged\",\"recommendation\":\"act_now\",\"confidence\":0.92,\"rationale\":\"Corroborated across marketplace feedback and ERP returns with material mention volume.\",\"criteriaMet\":[\"cross_source_corroboration\",\"returns_alignment\",\"materiality\",\"exception_focus\"],\"criteriaMissed\":[]},{\"theme\":\"leak_or_spill\",\"recommendation\":\"watch\",\"confidence\":0.68,\"rationale\":\"Material theme but missing full corroboration (cross_source_corroboration).\",\"criteriaMet\":[\"materiality\",\"returns_alignment\"],\"criteriaMissed\":[\"cross_source_corroboration\"]},{\"theme\":\"pump_failure\",\"recommendation\":\"watch\",\"confidence\":0.65,\"rationale\":\"Material theme but missing full corroboration (cross_source_corroboration, returns_alignment).\",\"criteriaMet\":[\"materiality\"],\"criteriaMissed\":[\"cross_source_corroboration\",\"returns_alignment\"]},{\"theme\":\"scent_too_strong\",\"recommendation\":\"watch\",\"confidence\":0.62,\"rationale\":\"Material theme but missing full corroboration (cross_source_corroboration).\",\"criteriaMet\":[\"materiality\"],\"criteriaMissed\":[\"cross_source_corroboration\"]},{\"theme\":\"easy_to_use\",\"recommendation\":\"exclude\",\"confidence\":0.4,\"rationale\":\"Positive sentiment theme; excluded from exception digest per company AI criteria.\",\"criteriaMet\":[],\"criteriaMissed\":[\"exception_focus\"]}]}"
+    }
+  ],
+  "usage": {
+    "input_tokens": 256,
+    "output_tokens": 384
+  }
+}

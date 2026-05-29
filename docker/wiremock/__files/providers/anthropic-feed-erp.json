@@ -1,0 +1,14 @@
+{
+  "id": "msg_feed_erp",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-3-5-sonnet-20241022",
+  "stop_reason": "end_turn",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"source\":\"erp_returns\",\"themes\":[{\"theme\":\"packaging_damaged\",\"mentions\":6,\"snippet\":\"Arrived damaged\",\"relevance\":\"high\"},{\"theme\":\"pump_failure\",\"mentions\":9,\"snippet\":\"Product defective / does not work\",\"relevance\":\"high\"},{\"theme\":\"not_as_described\",\"mentions\":3,\"snippet\":\"Not as described\",\"relevance\":\"medium\"}]}"
+    }
+  ],
+  "usage": { "input_tokens": 110, "output_tokens": 70 }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "msg_wiremock_voc_demo_v5",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-3-5-sonnet-20241022",
+  "stop_reason": "end_turn",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"model\":\"claude-3-5-sonnet-20241022\",\"source\":\"anthropic-node\",\"evaluations\":[{\"theme\":\"packaging_damaged\",\"recommendation\":\"act_now\",\"confidence\":0.98,\"rationale\":\"Packaging failures are heavily corroborated and immediately actionable.\",\"criteriaMet\":[\"cross_source_corroboration\",\"returns_alignment\",\"materiality\",\"exception_focus\"],\"criteriaMissed\":[]},{\"theme\":\"leak_or_spill\",\"recommendation\":\"exclude\",\"confidence\":0.21,\"rationale\":\"Transient spike not corroborated enough in this cycle.\",\"criteriaMet\":[],\"criteriaMissed\":[\"cross_source_corroboration\",\"returns_alignment\",\"materiality\"]},{\"theme\":\"pump_failure\",\"recommendation\":\"watch\",\"confidence\":0.49,\"rationale\":\"Moderate confidence signal; monitor trend before escalation.\",\"criteriaMet\":[\"materiality\"],\"criteriaMissed\":[\"cross_source_corroboration\",\"returns_alignment\"]},{\"theme\":\"scent_too_strong\",\"recommendation\":\"act_now\",\"confidence\":0.82,\"rationale\":\"Customer dissatisfaction intensity increased materially this cycle.\",\"criteriaMet\":[\"materiality\",\"cross_source_corroboration\"],\"criteriaMissed\":[\"returns_alignment\"]},{\"theme\":\"easy_to_use\",\"recommendation\":\"exclude\",\"confidence\":0.15,\"rationale\":\"Positive-only signal excluded in exception mode.\",\"criteriaMet\":[],\"criteriaMissed\":[\"exception_focus\"]}]}"
+    }
+  ],
+  "usage": {
+    "input_tokens": 248,
+    "output_tokens": 420
+  }
+}

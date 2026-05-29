@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/mock/demo/render"
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "ok": true,
+      "message": "Render payload accepted",
+      "viewUrl": "/mock/demo/render/view"
+    }
+  }
+}

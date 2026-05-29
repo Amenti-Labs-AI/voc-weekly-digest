@@ -1,0 +1,17 @@
+{
+  "id": "msg_wiremock_voc_demo_v3",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-3-5-sonnet-20241022",
+  "stop_reason": "end_turn",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"model\":\"claude-3-5-sonnet-20241022\",\"source\":\"anthropic-node\",\"evaluations\":[{\"theme\":\"packaging_damaged\",\"recommendation\":\"watch\",\"confidence\":0.57,\"rationale\":\"Packaging issues persisted but trend flattened; keep monitored, not escalated.\",\"criteriaMet\":[\"materiality\"],\"criteriaMissed\":[\"returns_alignment\",\"cross_source_corroboration\"]},{\"theme\":\"leak_or_spill\",\"recommendation\":\"watch\",\"confidence\":0.54,\"rationale\":\"Evidence remains mixed this cycle and lacks strong corroboration.\",\"criteriaMet\":[\"materiality\"],\"criteriaMissed\":[\"returns_alignment\",\"cross_source_corroboration\"]},{\"theme\":\"pump_failure\",\"recommendation\":\"exclude\",\"confidence\":0.29,\"rationale\":\"Insufficient confidence after normalization; deprioritized for exception digest.\",\"criteriaMet\":[],\"criteriaMissed\":[\"materiality\"]},{\"theme\":\"scent_too_strong\",\"recommendation\":\"exclude\",\"confidence\":0.27,\"rationale\":\"Perceived preference signal; not an exception-leading risk this week.\",\"criteriaMet\":[],\"criteriaMissed\":[\"materiality\",\"cross_source_corroboration\"]},{\"theme\":\"easy_to_use\",\"recommendation\":\"exclude\",\"confidence\":0.22,\"rationale\":\"Positive-only theme remains excluded.\",\"criteriaMet\":[],\"criteriaMissed\":[\"exception_focus\"]}]}"
+    }
+  ],
+  "usage": {
+    "input_tokens": 250,
+    "output_tokens": 376
+  }
+}

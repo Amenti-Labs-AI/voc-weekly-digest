@@ -1,0 +1,49 @@
+{
+  "scenarioName": "Amazon Source Variation",
+  "requiredScenarioState": "variant-2",
+  "newScenarioState": "Started",
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/mock/amazon/feedback/topics"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "source": "amazon_customer_feedback",
+      "asin": "{{request.query.asin}}",
+      "period": "LAST_7_DAYS",
+      "overallRating": 3.7,
+      "reviewCount": 1418,
+      "topics": [
+        {
+          "sentiment": "negative",
+          "label": "leak_or_spill",
+          "mentions": 63,
+          "ratingImpact": -0.34,
+          "sampleSnippet": "Two units leaked in transit this week."
+        },
+        {
+          "sentiment": "negative",
+          "label": "packaging_damaged",
+          "mentions": 22,
+          "ratingImpact": -0.18,
+          "sampleSnippet": "Outer box dents less severe but still present."
+        },
+        {
+          "sentiment": "positive",
+          "label": "easy_to_use",
+          "mentions": 54,
+          "ratingImpact": 0.11,
+          "sampleSnippet": "Easy application but quality consistency needs work."
+        }
+      ],
+      "trend": {
+        "leak_or_spill": "up",
+        "packaging_damaged": "down",
+        "easy_to_use": "down"
+      }
+    },
+    "transformers": ["response-template"]
+  }
+}

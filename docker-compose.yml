@@ -1,13 +1,26 @@
 # VOC weekly digest — n8n + WireMock
 # cp .env.example .env && docker compose up -d
+#
+# `setup` syncs workflow artifacts before n8n import.
 
 services:
+  setup:
+    image: node:22-alpine
+    working_dir: /repo
+    volumes:
+      - .:/repo
+      - voc_node_modules:/repo/node_modules
+    command: ["/bin/sh", "/repo/docker/setup/sync-workflow.sh"]
+    restart: "no"
+
   wiremock:
     image: wiremock/wiremock:3.9.1
+    entrypoint: ["/bin/sh", "/docker/wiremock/entrypoint.sh"]
     ports:
       - "${WIREMOCK_PORT:-8080}:8080"
     volumes:
-      - ./wiremock:/home/wiremock
+      - ./docker/wiremock:/home/wiremock
+      - ./docker/wiremock/entrypoint.sh:/docker/wiremock/entrypoint.sh:ro
     command:
       - --global-response-templating
       - --verbose
@@ -18,10 +31,20 @@ services:
       retries: 10
 
   n8n:
-    image: n8nio/n8n:${N8N_VERSION:-latest}
+    image: n8nio/n8n:${N8N_VERSION:-1.121.0}
+    entrypoint: ["/bin/sh", "/docker/n8n/entrypoint.sh"]
     ports:
       - "${N8N_PORT:-5678}:5678"
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+      wiremock:
+        condition: service_healthy
     environment:
+      - N8N_AUTO_IMPORT_WORKFLOW=${N8N_AUTO_IMPORT_WORKFLOW:-true}
+      - N8N_DEDUPE_WORKFLOWS=${N8N_DEDUPE_WORKFLOWS:-false}
+      - N8N_IMPORT_WORKFLOW=/src/n8n/workflows/voc-weekly-digest.json
+      - N8N_IMPORT_CREDENTIALS=/tmp/voc-ai-credentials.json
       - N8N_HOST=${N8N_HOST:-localhost}
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
@@ -29,15 +52,23 @@ services:
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-America/New_York}
       - N8N_DIAGNOSTICS_ENABLED=false
       - N8N_PERSONALIZATION_ENABLED=false
-      - VOC_MOCK_BASE_URL=http://wiremock:8080
+      - NODE_FUNCTION_ALLOW_EXTERNAL=*
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      - N8N_ENVIRONMENT_VARIABLES_ALLOW_LIST=VOC_MOCK_BASE_URL,VOC_OPENAI_BASE_URL,VOC_ANTHROPIC_BASE_URL,VOC_OPENAI_MODEL,VOC_ANTHROPIC_MODEL
+      - VOC_MOCK_BASE_URL=${VOC_MOCK_BASE_URL:-http://wiremock:8080}
+      - VOC_OPENAI_BASE_URL=${VOC_OPENAI_BASE_URL:-http://wiremock:8080/v1}
+      - VOC_ANTHROPIC_BASE_URL=${VOC_ANTHROPIC_BASE_URL:-http://wiremock:8080}
+      - VOC_OPENAI_API_KEY=${VOC_OPENAI_API_KEY}
+      - VOC_ANTHROPIC_API_KEY=${VOC_ANTHROPIC_API_KEY}
+      - VOC_OPENAI_MODEL=${VOC_OPENAI_MODEL:-gpt-4o-mini}
+      - VOC_ANTHROPIC_MODEL=${VOC_ANTHROPIC_MODEL:-claude-3-5-sonnet-20241022}
     volumes:
       - n8n_data:/home/node/.n8n
-      - ./n8n/workflows:/import:ro
-      - ./n8n/lib:/lib:ro
+      - ./src:/src:ro
+      - ./docker/n8n/entrypoint.sh:/docker/n8n/entrypoint.sh:ro
+      - ./docker/n8n/dedupe-workflows.js:/docker/n8n/dedupe-workflows.js:ro
       - ./config:/config:ro
-    depends_on:
-      wiremock:
-        condition: service_healthy
 
 volumes:
   n8n_data:
+  voc_node_modules:

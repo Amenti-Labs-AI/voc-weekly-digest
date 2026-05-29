@@ -1,0 +1,50 @@
+{
+  "scenarioName": "Marketplace Source Variation",
+  "requiredScenarioState": "variant-2",
+  "newScenarioState": "Started",
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/mock/marketplace/reviews"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": {
+      "source": "marketplace_reviews",
+      "retailer": "{{request.query.retailer}}",
+      "itemId": "{{request.query.itemId}}",
+      "overallRating": 3.5,
+      "totalCount": 458,
+      "reviews": [
+        {
+          "id": "mkt-9101",
+          "rating": 2,
+          "title": "Pump jammed",
+          "text": "Pump clogged after a few uses.",
+          "submittedAt": "2026-05-26T18:00:00Z",
+          "verifiedPurchaser": true,
+          "themeHint": "pump_failure"
+        },
+        {
+          "id": "mkt-9102",
+          "rating": 2,
+          "title": "Very strong smell",
+          "text": "Fragrance is much stronger than expected.",
+          "submittedAt": "2026-05-24T11:30:00Z",
+          "verifiedPurchaser": true,
+          "themeHint": "scent_too_strong"
+        },
+        {
+          "id": "mkt-9103",
+          "rating": 4,
+          "title": "Usability is good",
+          "text": "Application is easy though packaging quality varies.",
+          "submittedAt": "2026-05-22T08:15:00Z",
+          "verifiedPurchaser": true,
+          "themeHint": "easy_to_use"
+        }
+      ]
+    },
+    "transformers": ["response-template"]
+  }
+}

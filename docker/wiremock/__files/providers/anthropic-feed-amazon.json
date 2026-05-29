@@ -1,0 +1,14 @@
+{
+  "id": "msg_feed_amazon",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-3-5-sonnet-20241022",
+  "stop_reason": "end_turn",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"source\":\"amazon_customer_feedback\",\"themes\":[{\"theme\":\"packaging_damaged\",\"mentions\":47,\"snippet\":\"Box arrived crushed and product leaked.\",\"relevance\":\"high\"},{\"theme\":\"scent_too_strong\",\"mentions\":31,\"snippet\":\"Fragrance is overpowering compared to last batch.\",\"relevance\":\"medium\"},{\"theme\":\"easy_to_use\",\"mentions\":89,\"snippet\":\"Simple instructions, works as advertised.\",\"relevance\":\"low\"}]}"
+    }
+  ],
+  "usage": { "input_tokens": 120, "output_tokens": 80 }
+}

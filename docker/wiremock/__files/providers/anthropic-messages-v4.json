@@ -1,0 +1,17 @@
+{
+  "id": "msg_wiremock_voc_demo_v4",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-3-5-sonnet-20241022",
+  "stop_reason": "end_turn",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"model\":\"claude-3-5-sonnet-20241022\",\"source\":\"anthropic-node\",\"evaluations\":[{\"theme\":\"packaging_damaged\",\"recommendation\":\"exclude\",\"confidence\":0.24,\"rationale\":\"Noisy evidence this cycle; temporarily deprioritized pending confirmation.\",\"criteriaMet\":[],\"criteriaMissed\":[\"cross_source_corroboration\",\"returns_alignment\",\"materiality\"]},{\"theme\":\"leak_or_spill\",\"recommendation\":\"act_now\",\"confidence\":0.93,\"rationale\":\"Leak incidents dominate this run with strong corroboration and business impact.\",\"criteriaMet\":[\"cross_source_corroboration\",\"returns_alignment\",\"materiality\"],\"criteriaMissed\":[]},{\"theme\":\"pump_failure\",\"recommendation\":\"act_now\",\"confidence\":0.88,\"rationale\":\"Pump defect signal broadened across channels and warrants immediate response.\",\"criteriaMet\":[\"cross_source_corroboration\",\"materiality\"],\"criteriaMissed\":[\"returns_alignment\"]},{\"theme\":\"scent_too_strong\",\"recommendation\":\"watch\",\"confidence\":0.63,\"rationale\":\"Not severe enough for act-now, but trend is up and should be monitored.\",\"criteriaMet\":[\"materiality\"],\"criteriaMissed\":[\"cross_source_corroboration\"]},{\"theme\":\"easy_to_use\",\"recommendation\":\"exclude\",\"confidence\":0.18,\"rationale\":\"Positive-only feedback remains excluded from exception digest.\",\"criteriaMet\":[],\"criteriaMissed\":[\"exception_focus\"]}]}"
+    }
+  ],
+  "usage": {
+    "input_tokens": 261,
+    "output_tokens": 415
+  }
+}

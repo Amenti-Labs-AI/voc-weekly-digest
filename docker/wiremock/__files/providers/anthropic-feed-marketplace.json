@@ -1,0 +1,14 @@
+{
+  "id": "msg_feed_marketplace",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-3-5-sonnet-20241022",
+  "stop_reason": "end_turn",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"source\":\"marketplace_reviews\",\"themes\":[{\"theme\":\"leak_or_spill\",\"mentions\":1,\"snippet\":\"Product leaked in the bag during shipping.\",\"relevance\":\"high\"},{\"theme\":\"easy_to_use\",\"mentions\":1,\"snippet\":\"Does the job but motor is noisy.\",\"relevance\":\"low\"}]}"
+    }
+  ],
+  "usage": { "input_tokens": 100, "output_tokens": 55 }
+}

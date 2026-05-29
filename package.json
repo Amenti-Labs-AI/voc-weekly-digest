@@ -1,0 +1,13 @@
+{
+  "name": "voc-weekly-digest",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/**/*.test.js",
+    "bundle:n8n": "node scripts/bundle-voc-for-n8n.js",
+    "workflow:sync": "node scripts/embed-workflow-code.js",
+    "up": "./scripts/up.sh"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

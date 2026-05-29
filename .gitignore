@@ -1,3 +1,5 @@
 .env
 config/client-profile.json
 .DS_Store
+src/n8n/nodes/bundled/
+node_modules/

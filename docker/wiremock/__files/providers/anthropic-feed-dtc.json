@@ -1,0 +1,14 @@
+{
+  "id": "msg_feed_dtc",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-3-5-sonnet-20241022",
+  "stop_reason": "end_turn",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"source\":\"dtc_review_app\",\"themes\":[{\"theme\":\"pump_failure\",\"mentions\":1,\"snippet\":\"Worked for two weeks then the pump failed.\",\"relevance\":\"high\"},{\"theme\":\"easy_to_use\",\"mentions\":1,\"snippet\":\"Repeat buyer, consistent quality.\",\"relevance\":\"low\"}]}"
+    }
+  ],
+  "usage": { "input_tokens": 100, "output_tokens": 60 }
+}
